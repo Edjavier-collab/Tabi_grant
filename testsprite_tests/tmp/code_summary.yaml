@@ -1,0 +1,93 @@
+version: "2"
+type: frontend
+tech_stack:
+  - TypeScript
+  - Next.js
+  - Tailwind CSS
+  - Firebase
+  - Google Gemini API
+  - KoBoToolbox
+  - Google Workspace
+routes:
+  - path: /
+    file: src/app/page.tsx
+    auth_required: false
+    description: Landing page
+  - path: /dashboard
+    file: src/app/dashboard/page.tsx
+    auth_required: true
+    description: Main dashboard and Grant Pipeline Tracker (Kanban)
+  - path: /dashboard/calendar
+    file: src/app/dashboard/calendar/page.tsx
+    auth_required: true
+    description: Calendar view for operations and events
+  - path: /dashboard/field-data
+    file: src/app/dashboard/field-data/page.tsx
+    auth_required: true
+    description: KoBoToolbox field data integration and visualization
+  - path: /dashboard/reports
+    file: src/app/dashboard/reports/page.tsx
+    auth_required: true
+    description: AI-Powered Report & LOI Generator interface
+  - path: /dashboard/settings
+    file: src/app/dashboard/settings/page.tsx
+    auth_required: true
+    description: Application settings and user profile
+  - path: /dashboard/settings/kobo
+    file: src/app/dashboard/settings/kobo/page.tsx
+    auth_required: true
+    description: KoBoToolbox integration settings
+features:
+  - name: Grant Pipeline Tracker
+    description: Kanban board interface for tracking grants through 9 stages with mandatory FPIC compliance documentation logging.
+    files:
+      - src/app/dashboard/page.tsx
+    entry_route: /dashboard
+    user_interactions:
+      - Drag and drop grant cards
+      - Upload FPIC documentation
+      - Move grants through stages
+    api_calls:
+      - method: POST
+        endpoint: /api/grants/update
+    auth_required: true
+  - name: KoBo Field Data Integration
+    description: Auto-synced field data including Tree Planting Logs, Watershed Monitoring, and Patrol Reports.
+    files:
+      - src/app/dashboard/field-data/page.tsx
+    entry_route: /dashboard/field-data
+    user_interactions:
+      - Navigate filter options
+      - View mapped metrics
+      - Trigger manual sync
+    api_calls:
+      - method: GET
+        endpoint: /api/kobo/sync
+    auth_required: true
+  - name: AI-Powered Report & LOI Generator
+    description: Generates automated draft reports using Gemini, blending koBo data and scraped impact metrics for different donor personas.
+    files:
+      - src/app/dashboard/reports/page.tsx
+    entry_route: /dashboard/reports
+    user_interactions:
+      - Select donor persona
+      - Trigger outline/draft generation
+      - Review and edit document
+    api_calls:
+      - method: POST
+        endpoint: /api/gemini/generate
+    auth_required: true
+  - name: Google Workspace Integration
+    description: Scrape emails, read Calendar instances, and save folders to drive
+    files:
+      - src/lib/google-workspace-cli.ts
+      - src/hooks/useGoogleWorkspace.ts
+    entry_route: /dashboard
+    user_interactions:
+      - Request email scraping
+      - Send draft email
+    api_calls:
+      - method: POST
+        endpoint: /api/google/gmail/draft
+    auth_required: true
+known_limitations: []

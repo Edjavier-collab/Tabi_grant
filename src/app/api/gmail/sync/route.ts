@@ -1,11 +1,24 @@
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
-import { scrapeRecentEmails } from "@/lib/google/workspace-cli";
+import { cookies } from "next/headers";
+import { searchInbox } from "@/lib/google/gmail";
 import { addGrant } from "@/lib/firebase/db";
 import { Stage } from "@/types/grant";
 
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey || "");
+
+async function getAuthTokens() {
+    const cookieStore = await cookies();
+    const access_token = cookieStore.get("gmail_access_token")?.value;
+    const refresh_token = cookieStore.get("gmail_refresh_token")?.value;
+
+    if (!access_token && !refresh_token) {
+        throw new Error("No Google authentication tokens found. Please connect your Google account in settings.");
+    }
+
+    return { access_token: access_token || "", refresh_token: refresh_token || "" };
+}
 
 export async function POST() {
     if (!apiKey) {
@@ -13,9 +26,10 @@ export async function POST() {
     }
 
     try {
+        const tokens = await getAuthTokens();
         // Scrape the last 5 funder-related emails
         // Adjust the query as needed. Using "is:unread" could limit it to new ones.
-        const emails = await scrapeRecentEmails("label:inbox AND (grant OR funding OR proposal OR LOI)", 5);
+        const emails = await searchInbox(tokens, "label:inbox AND (grant OR funding OR proposal OR LOI)", 5);
 
         if (emails.length === 0) {
             return NextResponse.json({ message: "No relevant emails found.", count: 0 });

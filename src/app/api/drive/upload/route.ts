@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { driveCli } from '@/lib/google-workspace-cli';
-import * as fs from 'fs/promises';
 
 export async function POST(request: Request) {
     try {
@@ -13,11 +12,7 @@ export async function POST(request: Request) {
         }
 
         const buffer = Buffer.from(await file.arrayBuffer());
-        const tempFile = `/tmp/drive_upload_${Date.now()}_${file.name}`;
-        await fs.writeFile(tempFile, buffer);
-
-        const result = await driveCli.uploadFile(tempFile, folderId, file.name);
-        await fs.unlink(tempFile);
+        const result = await driveCli.uploadFile(buffer, file.type || 'application/octet-stream', folderId, file.name);
 
         return NextResponse.json(result);
     } catch (error: any) {

@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { FollowupItem } from "@/hooks/useFollowups";
-import { X, Copy, ExternalLink } from "lucide-react";
+import { X, Copy, Loader2, Mail } from "lucide-react";
+import { useGmail } from "@/hooks/useGoogleWorkspace";
 
 interface Props {
     item: FollowupItem | null;
@@ -79,6 +80,9 @@ Tabi Po Foundation`,
 };
 
 export const EmailDraftPreview = ({ item, isOpen, onClose }: Props) => {
+    const { createDraft } = useGmail();
+    const [drafting, setDrafting] = useState(false);
+
     if (!isOpen || !item) return null;
 
     const templateFn = TEMPLATES[item.type] || TEMPLATES.follow_up_1;
@@ -91,9 +95,15 @@ export const EmailDraftPreview = ({ item, isOpen, onClose }: Props) => {
 
     const toAddress = item.grant.primaryContact?.email || `${item.grant.funderName.toLowerCase().replace(/\s+/g, "")}@foundation.org`;
 
-    const handleOpenGmail = () => {
-        const gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&fs=1&to=${encodeURIComponent(toAddress)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        window.open(gmailUrl, "_blank");
+    const handleCreateDraft = async () => {
+        setDrafting(true);
+        try {
+            await createDraft(toAddress, subject, body);
+            alert("Draft created in Gmail!");
+        } catch {
+            alert("Failed to create draft. Check Gmail connection in Settings.");
+        }
+        setDrafting(false);
     };
 
     return (
@@ -148,10 +158,12 @@ export const EmailDraftPreview = ({ item, isOpen, onClose }: Props) => {
                                 <Copy className="w-4 h-4" /> Copy
                             </button>
                             <button
-                                onClick={handleOpenGmail}
-                                className="flex-1 flex items-center justify-center gap-2 py-4 bg-signal text-white border-2 border-black font-heading text-sm font-black uppercase tracking-widest hover:bg-black transition-all shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px]"
+                                onClick={handleCreateDraft}
+                                disabled={drafting}
+                                className="flex-1 flex items-center justify-center gap-2 py-4 bg-signal text-white border-2 border-black font-heading text-sm font-black uppercase tracking-widest hover:bg-black transition-all shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <ExternalLink className="w-4 h-4" /> Open in Gmail
+                                {drafting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+                                {drafting ? "Creating Draft..." : "Create Draft in Gmail"}
                             </button>
                         </div>
                     </div>

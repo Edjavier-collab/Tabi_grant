@@ -1,57 +1,117 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import * as fs from 'fs/promises';
+import { cookies } from "next/headers";
+import { getGmailClient } from "./google/gmail";
+import { getCalendarClient, getDriveClient } from "./google/workspace";
+import { Readable } from 'stream';
 
-const execAsync = promisify(exec);
+async function getAuthTokens() {
+    const cookieStore = await cookies();
+    const access_token = cookieStore.get("gmail_access_token")?.value;
+    const refresh_token = cookieStore.get("gmail_refresh_token")?.value;
+
+    if (!access_token && !refresh_token) {
+        throw new Error("No Google authentication tokens found. Please connect your Google account in settings.");
+    }
+
+    return { access_token: access_token || "", refresh_token: refresh_token || "" };
+}
 
 export const gmailCli = {
     async listEmails(query: string, maxResults = 10) {
-        // For local environments without gcloud workspace CLI installed properly, handle gracefull simulation
         try {
-            const { stdout } = await execAsync(
-                `gcloud workspace gmail messages list --user="me" --query="${query}" --max-results=${maxResults} --format="json"`
-            );
-            return JSON.parse(stdout);
-        } catch (e) {
-            console.warn("gcloud CLI not detected or failed, returning mock emails for UI display", e);
+            const tokens = await getAuthTokens();
+            const gmail = await getGmailClient(tokens);
+            const res = await gmail.users.messages.list({
+                userId: "me",
+                q: query,
+                maxResults,
+            });
+            const messages = res.data.messages || [];
+            return { messages };
+        } catch (e: any) {
+            console.warn("Failed to list emails via SDK.", e.message);
             return { messages: [] };
         }
     },
 
     async getEmail(messageId: string) {
         try {
-            const { stdout } = await execAsync(
-                `gcloud workspace gmail messages get --user="me" --id="${messageId}" --format="json"`
-            );
-            return JSON.parse(stdout);
+            const tokens = await getAuthTokens();
+            const gmail = await getGmailClient(tokens);
+            const res = await gmail.users.messages.get({
+                userId: "me",
+                id: messageId,
+                format: "raw",
+            });
+            return res.data;
         } catch (e) {
             return {};
         }
     },
 
-    async sendEmail(to: string, subject: string, bodyFile: string, attachment?: string) {
-        let cmd = `gcloud workspace gmail messages send --user="me" --to="${to}" --subject="${subject}" --body-file="${bodyFile}"`;
-        if (attachment) cmd += ` --attachment="${attachment}"`;
+    async sendEmail(to: string, subject: string, body: string, attachment?: string) {
         try {
-            return await execAsync(cmd);
-        } catch (e) {
-            console.warn("MOCK SENDING", cmd);
-            return { stdout: "mock" };
+            const tokens = await getAuthTokens();
+            const gmail = await getGmailClient(tokens);
+
+            const rawMessage = [
+                `To: ${to}`,
+                `Subject: ${subject}`,
+                `Content-Type: text/plain; charset="UTF-8"`,
+                "",
+                body,
+            ].join("\n");
+
+            const encodedMessage = Buffer.from(rawMessage)
+                .toString("base64")
+                .replace(/\+/g, "-")
+                .replace(/\//g, "_")
+                .replace(/=+$/, "");
+
+            const res = await gmail.users.messages.send({
+                userId: "me",
+                requestBody: {
+                    raw: encodedMessage,
+                },
+            });
+            return { stdout: res.data };
+        } catch (e: any) {
+            console.warn("MOCK SENDING", e.message);
+            return { stdout: "mock error" };
         }
     },
 
     async createDraft(to: string, subject: string, body: string, isHtml: boolean = false) {
-        const tempFile = `/tmp/email_${Date.now()}.${isHtml ? 'html' : 'txt'}`;
-        await fs.writeFile(tempFile, body);
         try {
-            const { stdout } = await execAsync(
-                `gcloud workspace gmail drafts create --user="me" --to="${to}" --subject="${subject}" --body-file="${tempFile}" --format="json"`
-            );
-            await fs.unlink(tempFile);
-            return JSON.parse(stdout);
-        } catch (e) {
-            await fs.unlink(tempFile);
-            return { id: "mock-draft-id" };
+            const tokens = await getAuthTokens();
+            const gmail = await getGmailClient(tokens);
+
+            const contentType = isHtml ? 'text/html' : 'text/plain';
+            const rawMessage = [
+                `To: ${to}`,
+                `Subject: ${subject}`,
+                `Content-Type: ${contentType}; charset="UTF-8"`,
+                "",
+                body,
+            ].join("\n");
+
+            const encodedMessage = Buffer.from(rawMessage)
+                .toString("base64")
+                .replace(/\+/g, "-")
+                .replace(/\//g, "_")
+                .replace(/=+$/, "");
+
+            const res = await gmail.users.drafts.create({
+                userId: "me",
+                requestBody: {
+                    message: {
+                        raw: encodedMessage,
+                    },
+                },
+            });
+            return res.data;
+        } catch (e: any) {
+            console.error("Failed to create draft", e);
+            return { id: "mock-draft-id", error: e.message };
         }
     }
 };
@@ -59,66 +119,125 @@ export const gmailCli = {
 export const calendarCli = {
     async listEvents(timeMin: string, timeMax: string) {
         try {
-            const { stdout } = await execAsync(
-                `gcloud workspace calendar events list --calendar="primary" --time-min="${timeMin}" --time-max="${timeMax}" --format="json"`
-            );
-            return JSON.parse(stdout);
-        } catch (e) { return { items: [] }; }
+            const tokens = await getAuthTokens();
+            const calendar = await getCalendarClient(tokens);
+            const res = await calendar.events.list({
+                calendarId: "primary",
+                timeMin: timeMin ? new Date(timeMin).toISOString() : undefined,
+                timeMax: timeMax ? new Date(timeMax).toISOString() : undefined,
+                singleEvents: true,
+                orderBy: "startTime",
+            });
+            return { items: res.data.items || [] };
+        } catch (e) {
+            return { items: [] };
+        }
     },
 
     async createEvent(summary: string, start: string, end: string, description?: string, reminders?: string) {
-        let cmd = `gcloud workspace calendar events create --calendar="primary" --summary="${summary}" --start="${start}" --end="${end}"`;
-        if (description) cmd += ` --description="${description}"`;
-        if (reminders) cmd += ` --reminders="${reminders}"`;
-        cmd += ' --format="json"';
         try {
-            const { stdout } = await execAsync(cmd);
-            return JSON.parse(stdout);
-        } catch (e) { return { id: "mock-event-id", status: "confirmed" }; }
+            const tokens = await getAuthTokens();
+            const calendar = await getCalendarClient(tokens);
+            const res = await calendar.events.insert({
+                calendarId: "primary",
+                requestBody: {
+                    summary,
+                    description,
+                    start: { dateTime: new Date(start).toISOString() },
+                    end: { dateTime: new Date(end).toISOString() },
+                },
+            });
+            return res.data;
+        } catch (e) {
+            return { id: "mock-event-id", status: "confirmed" };
+        }
     },
 
     async deleteEvent(eventId: string) {
         try {
-            return await execAsync(
-                `gcloud workspace calendar events delete --calendar="primary" --event-id="${eventId}"`
-            );
-        } catch (e) { return { stdout: "mock" }; }
+            const tokens = await getAuthTokens();
+            const calendar = await getCalendarClient(tokens);
+            await calendar.events.delete({
+                calendarId: "primary",
+                eventId: eventId,
+            });
+            return { stdout: "deleted" };
+        } catch (e) {
+            return { stdout: "mock" };
+        }
     }
 };
 
 export const driveCli = {
-    async uploadFile(filePath: string, parentId: string, name: string) {
+    async uploadFile(buffer: Buffer, mimeType: string, parentId: string, name: string) {
         try {
-            const { stdout } = await execAsync(
-                `gcloud workspace drive files upload --file="${filePath}" --parent="${parentId}" --name="${name}" --format="json"`
-            );
-            return JSON.parse(stdout);
-        } catch (e) { return { id: "mock-file-id" }; }
+            const tokens = await getAuthTokens();
+            const drive = await getDriveClient(tokens);
+
+            const stream = new Readable();
+            stream.push(buffer);
+            stream.push(null);
+
+            const res = await drive.files.create({
+                requestBody: {
+                    name,
+                    parents: [parentId],
+                },
+                media: {
+                    mimeType,
+                    body: stream,
+                },
+                fields: "id, name, webViewLink",
+            });
+            return res.data;
+        } catch (e) {
+            return { id: "mock-file-id" };
+        }
     },
 
     async createFolder(name: string, parentId: string) {
         try {
-            const { stdout } = await execAsync(
-                `gcloud workspace drive files create --name="${name}" --mime-type="application/vnd.google-apps.folder" --parent="${parentId}" --format="json"`
-            );
-            return JSON.parse(stdout);
-        } catch (e) { return { id: "mock-folder-id" }; }
+            const tokens = await getAuthTokens();
+            const drive = await getDriveClient(tokens);
+            const res = await drive.files.create({
+                requestBody: {
+                    name,
+                    mimeType: "application/vnd.google-apps.folder",
+                    parents: [parentId],
+                },
+                fields: "id",
+            });
+            return res.data;
+        } catch (e) {
+            return { id: "mock-folder-id" };
+        }
     },
 
     async listFiles(folderId: string) {
         try {
-            const { stdout } = await execAsync(
-                `gcloud workspace drive files list --query="'${folderId}' in parents" --format="json"`
-            );
-            return JSON.parse(stdout);
-        } catch (e) { return { files: [] }; }
+            const tokens = await getAuthTokens();
+            const drive = await getDriveClient(tokens);
+            const res = await drive.files.list({
+                q: `'${folderId}' in parents`,
+                fields: "files(id, name, mimeType, webViewLink)",
+            });
+            return { files: res.data.files || [] };
+        } catch (e) {
+            return { files: [] };
+        }
     },
 
-    async downloadFile(fileId: string, destination: string) {
+    async downloadFile(fileId: string) {
         try {
-            return await execAsync(
-                `gcloud workspace drive files download --file-id="${fileId}" --destination="${destination}"`
+            const tokens = await getAuthTokens();
+            const drive = await getDriveClient(tokens);
+            const res = await drive.files.get(
+                { fileId, alt: 'media' },
+                { responseType: 'arraybuffer' }
             );
-        } catch (e) { return { stdout: "mock" }; }
+            return Buffer.from(res.data as ArrayBuffer);
+        } catch (e) {
+            return Buffer.from("mock");
+        }
     }
 };
