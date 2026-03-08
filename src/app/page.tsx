@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Activity, Cpu } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
@@ -11,6 +11,7 @@ import Features from "@/components/Features";
 import Philosophy from "@/components/Philosophy";
 import Protocol from "@/components/Protocol";
 import Footer from "@/components/Footer";
+import { TopoBackground } from "@/components/dashboard/TopoBackground";
 
 // Abstract out GSAP registration to avoid SSR issues
 if (typeof window !== "undefined") {
@@ -130,16 +131,9 @@ const Hero = () => {
   }, []);
 
   return (
-    <section ref={containerRef} className="relative flex h-[100dvh] w-full items-end p-8 pb-16 md:p-16">
+    <section ref={containerRef} className="relative flex h-[100dvh] w-full items-end p-8 pb-16 md:p-16 overflow-hidden">
       {/* Background Graphic */}
-      <div className="absolute inset-0 z-0 bg-black">
-        <img
-          src="https://images.unsplash.com/photo-1541888086431-7b02db72afae?q=80&w=2940&auto=format&fit=crop"
-          alt="Concrete structure"
-          className="h-full w-full object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-[2s]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
-      </div>
+      <TopoBackground />
 
       <div className="relative z-10 max-w-4xl text-white">
         <div className="hero-elem mb-6 font-mono text-sm uppercase tracking-[0.2em] text-paper/70">
@@ -151,6 +145,31 @@ const Hero = () => {
         <h1 className="hero-elem mb-10 font-drama text-6xl italic leading-none tracking-tight text-paper md:text-[8rem]">
           Grant Lifecycle.
         </h1>
+
+        {/* System Telemetry HUD */}
+        <div className="hero-elem mb-12 flex flex-wrap gap-4 border-l-2 border-signal pl-6 font-mono text-[10px] uppercase tracking-[0.2em] text-paper/60">
+          <div className="flex items-center gap-2 bg-signal/10 px-3 py-1.5 border border-signal/20 backdrop-blur-md">
+            <div className="h-1.5 w-1.5 rounded-full bg-signal animate-pulse" />
+            <span>SYS_ONLINE: 99.8%</span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 border border-white/10 backdrop-blur-md">
+            <Activity className="h-3 w-3 text-signal" />
+            <span>TELEMETRY_SYNC: ACTIVE</span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 border border-white/10 backdrop-blur-md">
+            <Cpu className="h-3 w-3 text-signal" />
+            <span>CONTEXT_MAPPING: STABLE</span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 border border-white/10 backdrop-blur-md">
+            <div className="flex gap-0.5">
+              {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className={`h-3 w-1 ${i < 4 ? 'bg-signal' : 'bg-white/20'}`} />
+              ))}
+            </div>
+            <span>SIGNAL_STRENGTH</span>
+          </div>
+        </div>
+
         <div className="hero-elem flex flex-col items-start gap-6 sm:flex-row sm:items-center">
           <MagnetButton
             onClick={user ? () => router.push('/dashboard') : signInWithGoogle}

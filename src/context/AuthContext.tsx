@@ -32,12 +32,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Handle redirect result if returning from a Google sign-in redirect
-        getRedirectResult(auth).catch(() => { /* ignore on non-redirect page loads */ });
-
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
             setLoading(false);
+
+            // Sync UID to cookie for server-side access
+            if (currentUser) {
+                document.cookie = `uid=${currentUser.uid}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
+            } else {
+                document.cookie = "uid=; path=/; max-age=0; SameSite=Lax";
+            }
         });
 
         return () => unsubscribe();

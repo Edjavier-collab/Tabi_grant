@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOAuth2Client } from "@/lib/google/gmail";
+import { saveUserTokens } from "@/lib/firebase/db";
 import { cookies } from "next/headers";
 
 export async function GET(req: NextRequest) {
@@ -16,6 +17,14 @@ export async function GET(req: NextRequest) {
 
         // Store tokens in HTTP-only cookies for session persistence
         const cookieStore = await cookies();
+        const userId = cookieStore.get("uid")?.value;
+
+        if (userId) {
+            await saveUserTokens(userId, {
+                access_token: tokens.access_token,
+                refresh_token: tokens.refresh_token,
+            });
+        }
 
         if (tokens.access_token) {
             cookieStore.set("gmail_access_token", tokens.access_token, {
