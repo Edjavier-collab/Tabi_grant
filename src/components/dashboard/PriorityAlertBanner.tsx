@@ -41,8 +41,8 @@ const PRIORITY_CYCLES = [
 export const PriorityAlertBanner = () => {
     const [dismissed, setDismissed] = useState(false);
 
-    // Mocking the current date to force the March 2026 alert for demonstration/testing
-    const currentDate = new Date(2026, 2, 1); // March 1, 2026
+    // Use the actual current date
+    const currentDate = new Date();
 
     const activeCycle = PRIORITY_CYCLES.find(c => {
         // Find if we are within 30 days before or during the target month

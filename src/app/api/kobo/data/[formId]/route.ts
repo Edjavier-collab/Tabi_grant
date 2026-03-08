@@ -1,19 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { koboApi } from '@/lib/kobo-api';
+import { KOBO_FORM_MAPPING } from '@/lib/kobo-mapping';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ formId: string }> }) {
     try {
         const { formId } = await params;
-        const mockAssetUid = `mock-uid-for-${formId}`;
+        const formInfo = KOBO_FORM_MAPPING[formId];
 
         let data = [];
-        try {
-            const response = await koboApi.getFormSubmissions(mockAssetUid, 10);
-            if (response && response.results) {
-                data = response.results;
+        if (formInfo && formInfo.uid) {
+            try {
+                const response = await koboApi.getFormSubmissions(formInfo.uid, 50);
+                if (response && response.results) {
+                    data = response.results;
+                }
+            } catch (e) {
+                console.warn(`Could not fetch submissions for UID ${formInfo.uid}`, e);
             }
-        } catch (e) {
-            console.warn("Could not fetch submissions for mock UID", e);
+        } else {
+            console.warn(`No mapping or UID found for formId: ${formId}`);
         }
 
         return NextResponse.json(data);

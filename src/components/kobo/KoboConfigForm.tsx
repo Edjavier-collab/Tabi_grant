@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Save, Key, AppWindow } from "lucide-react";
 
+import { KOBO_FORM_MAPPING } from "@/lib/kobo-mapping";
+
 export function KoboConfigForm() {
     const [apiKey, setApiKey] = useState("••••••••••••••••••••••••••••");
 
@@ -32,20 +34,14 @@ export function KoboConfigForm() {
                     <h2 className="font-heading font-black text-base uppercase tracking-widest">Connected Forms</h2>
                 </div>
                 <div className="p-0">
-                    {/* Mock connected forms list mimicking brutalist settings */}
-                    {[
-                        { name: "Tree Planting Log", uid: "abc12345", status: "Active" },
-                        { name: "Aluyan River Watershed Monitoring", uid: "def67890", status: "Active" },
-                        { name: "Bantay Bukid Patrol Report", uid: "ghi11223", status: "Active" },
-                        { name: "Roots and Rivers: Photo Story", uid: "jkl44556", status: "Active" }
-                    ].map((form, i) => (
-                        <div key={i} className={`p-4 font-mono border-b-4 border-black last:border-b-0 flex items-center justify-between ${i % 2 === 0 ? 'bg-white' : 'bg-[#E2DFD8]'}`}>
+                    {Object.entries(KOBO_FORM_MAPPING).map(([id, form], i) => (
+                        <div key={id} className={`p-4 font-mono border-b-4 border-black last:border-b-0 flex items-center justify-between ${i % 2 === 0 ? 'bg-white' : 'bg-[#E2DFD8]'}`}>
                             <div>
-                                <p className="font-bold uppercase mb-1">{form.name}</p>
-                                <p className="text-xs text-black/60 uppercase tracking-widest">UID: {form.uid}</p>
+                                <p className="font-bold uppercase mb-1">{form.displayName}</p>
+                                <p className="text-xs text-black/60 uppercase tracking-widest">UID: {form.uid || 'Not Configured'}</p>
                             </div>
-                            <span className="px-3 py-1 bg-black text-white text-xs font-bold shadow-[2px_2px_0px_0px_rgba(255,53,0,1)] uppercase tracking-wider">
-                                {form.status}
+                            <span className={`px-3 py-1 bg-black text-white text-xs font-bold shadow-[2px_2px_0px_0px_rgba(255,53,0,1)] uppercase tracking-wider ${form.uid ? '' : 'opacity-50'}`}>
+                                {form.uid ? 'Active' : 'Pending Setup'}
                             </span>
                         </div>
                     ))}

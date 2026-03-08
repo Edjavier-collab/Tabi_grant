@@ -1,6 +1,7 @@
 export const KOBO_FORM_MAPPING: Record<string, any> = {
     'tree_planting_log': {
         displayName: 'Tree Planting Log',
+        uid: process.env.KOBO_TREE_PLANTING_UID || '', // Set these in .env.local when real UIDs are available
         reportSection: 'Restoration Progress',
         metrics: [
             { field: 'trees_planted', label: 'Trees Planted', aggregation: 'sum' },
@@ -11,6 +12,7 @@ export const KOBO_FORM_MAPPING: Record<string, any> = {
     },
     'watershed_monitoring': {
         displayName: 'Aluyan River Watershed Monitoring',
+        uid: process.env.KOBO_WATERSHED_UID || '',
         reportSection: 'Environmental Impact',
         metrics: [
             { field: 'water_quality', label: 'Water Quality Index', aggregation: 'latest' },
@@ -20,6 +22,7 @@ export const KOBO_FORM_MAPPING: Record<string, any> = {
     },
     'bantay_bukid_patrol': {
         displayName: 'Bantay Bukid Patrol Report',
+        uid: process.env.KOBO_PATROL_UID || '',
         reportSection: 'Community Protection',
         metrics: [
             { field: 'patrol_date', label: 'Total Patrols', aggregation: 'count' },
@@ -30,6 +33,7 @@ export const KOBO_FORM_MAPPING: Record<string, any> = {
     },
     'photo_story': {
         displayName: 'Roots and Rivers: Photo Story',
+        uid: process.env.KOBO_PHOTO_UID || '',
         reportSection: 'Visual Evidence',
         metrics: [
             { field: 'photo', label: 'Photos Collected', aggregation: 'count' },

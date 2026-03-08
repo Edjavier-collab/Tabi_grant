@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { generateReportContent, generateWordDocument, generateCoverEmail } from '@/lib/report-generator';
 import { koboApi } from '@/lib/kobo-api';
 import { scrapeImpactDashboard } from '@/lib/impact-scraper';
+import { KOBO_FORM_MAPPING } from '@/lib/kobo-mapping';
 import { db } from '@/lib/firebase/config';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
@@ -27,8 +28,14 @@ export async function POST(request: Request) {
         const koboData: Record<string, any> = {};
         for (const formId of ['tree_planting_log', 'watershed_monitoring', 'bantay_bukid_patrol', 'photo_story']) {
             try {
-                const data = await koboApi.getFormSubmissions(`mock-uid-${formId}`, 10);
-                koboData[formId] = data.results || [];
+                // Ensure formInfo and its UID exist
+                const formInfo = KOBO_FORM_MAPPING[formId];
+                if (formInfo && formInfo.uid) {
+                    const data = await koboApi.getFormSubmissions(formInfo.uid, 10);
+                    koboData[formId] = data.results || [];
+                } else {
+                    koboData[formId] = [];
+                }
             } catch (e) { koboData[formId] = []; }
         }
 

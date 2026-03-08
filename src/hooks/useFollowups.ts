@@ -96,43 +96,6 @@ export function useFollowups(grants: Grant[]): FollowupItem[] {
         const urgencyOrder = { critical: 0, warning: 1, info: 2 };
         items.sort((a, b) => urgencyOrder[a.urgency] - urgencyOrder[b.urgency]);
 
-        // DEMO MODE: If no real items, show sample data so the UI is visible
-        if (items.length === 0) {
-            const demoGrant: Grant = {
-                id: "demo-001",
-                funderName: "Moore Foundation",
-                amountRequested: 75000,
-                projectLinked: "Roots & Rivers",
-                currentStage: "LOI Submitted",
-                createdAt: new Date(Date.now() - 35 * MS_PER_DAY).toISOString(),
-                updatedAt: new Date(Date.now() - 35 * MS_PER_DAY).toISOString(),
-                primaryContact: { name: "J. Martinez", email: "grants@moore.org" },
-            };
-            const demoGrant2: Grant = {
-                id: "demo-002",
-                funderName: "Packard Foundation",
-                amountRequested: 50000,
-                projectLinked: "Roots & Rivers",
-                currentStage: "LOI Submitted",
-                createdAt: new Date(Date.now() - 18 * MS_PER_DAY).toISOString(),
-                updatedAt: new Date(Date.now() - 18 * MS_PER_DAY).toISOString(),
-            };
-            const demoGrant3: Grant = {
-                id: "demo-003",
-                funderName: "Christensen Fund",
-                amountRequested: 120000,
-                projectLinked: "Watershed Protection",
-                currentStage: "Prospect",
-                createdAt: new Date(Date.now() - 50 * MS_PER_DAY).toISOString(),
-                updatedAt: new Date(Date.now() - 50 * MS_PER_DAY).toISOString(),
-            };
-            items.push(
-                { grant: demoGrant, type: "follow_up_2", label: "URGENT: Moore Foundation — no response in 35 days (demo)", urgency: "critical", daysSince: 35 },
-                { grant: demoGrant2, type: "follow_up_1", label: "Follow up: Packard Foundation (LOI sent 18 days ago) (demo)", urgency: "warning", daysSince: 18 },
-                { grant: demoGrant3, type: "re_engage", label: "Re-engage: Christensen Fund — last activity 50 days ago (demo)", urgency: "info", daysSince: 50 },
-            );
-        }
-
         return items;
     }, [grants]);
 }
