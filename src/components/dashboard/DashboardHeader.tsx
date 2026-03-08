@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { LogOut, Calendar, LayoutDashboard, Settings } from "lucide-react";
+import { LogOut, Calendar, LayoutDashboard, Settings, Map, FileText } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 
@@ -46,6 +46,18 @@ export const DashboardHeader = ({ title, actionButton }: Props) => {
                         className={`flex items-center gap-2 font-mono text-sm font-bold uppercase tracking-widest px-3 py-2 border-2 ${pathname === "/dashboard/calendar" ? "border-black bg-black text-white" : "border-transparent hover:border-black"}`}
                     >
                         <Calendar className="w-4 h-4" /> Calendar
+                    </Link>
+                    <Link
+                        href="/dashboard/field-data"
+                        className={`flex items-center gap-2 font-mono text-sm font-bold uppercase tracking-widest px-3 py-2 border-2 ${pathname === "/dashboard/field-data" ? "border-black bg-black text-white" : "border-transparent hover:border-black"}`}
+                    >
+                        <Map className="w-4 h-4" /> Field Data
+                    </Link>
+                    <Link
+                        href="/dashboard/reports"
+                        className={`flex items-center gap-2 font-mono text-sm font-bold uppercase tracking-widest px-3 py-2 border-2 ${pathname === "/dashboard/reports" ? "border-black bg-black text-white" : "border-transparent hover:border-black"}`}
+                    >
+                        <FileText className="w-4 h-4" /> Reports
                     </Link>
                     <Link
                         href="/dashboard/settings"

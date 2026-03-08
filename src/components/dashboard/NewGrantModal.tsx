@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { addGrant } from "@/lib/firebase/db";
 import { Stage } from "@/types/grant";
 import { Sparkles, X } from "lucide-react";
 
@@ -41,7 +40,16 @@ export const NewGrantModal = ({ isOpen, onClose, onSuccess }: Props) => {
                 ...(deadline ? { loiDeadline: new Date(deadline).toISOString() } : {}),
             };
 
-            await addGrant(grantData);
+            const response = await fetch("/api/grants", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(grantData),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to add grant via API");
+            }
+
             setLoading(false);
             onSuccess();
             onClose();
