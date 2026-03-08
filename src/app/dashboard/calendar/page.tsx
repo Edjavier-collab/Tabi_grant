@@ -145,74 +145,88 @@ export default function CalendarPage() {
 
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Calendar Grid */}
-                    <div className="flex-1 border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] overflow-hidden">
-                        {/* Calendar Header */}
-                        <div className="flex items-center justify-between px-6 py-4 border-b-4 border-black bg-black text-white">
-                            <button onClick={prevMonth} className="p-2 hover:bg-signal transition-colors">
-                                <ChevronLeft className="w-5 h-5" />
-                            </button>
-                            <div className="flex items-center gap-4">
-                                <h2 className="font-heading font-black text-xl uppercase tracking-widest">
-                                    {MONTH_NAMES[currentMonth]} {currentYear}
-                                </h2>
-                                <button
-                                    onClick={goToday}
-                                    className="font-mono text-xs bg-signal px-3 py-1 font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-colors"
-                                >
-                                    Today
+                    <div className="flex-1 space-y-4">
+                        {/* Sync Toggle */}
+                        <div className="flex items-center justify-between p-4 border-4 border-black bg-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
+                            <div className="flex flex-col">
+                                <span className="font-heading font-black text-lg uppercase tracking-widest text-[#FF3500]">Sync to Google Calendar</span>
+                                <span className="font-mono text-xs text-black/60 font-bold uppercase">Automatically push new deadlines to GCal</span>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" className="sr-only peer" />
+                                <div className="w-14 h-7 bg-[#E2DFD8] peer-focus:outline-none border-2 border-black peer-checked:bg-signal peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-2 after:border-black after:h-5 after:w-6 after:transition-all shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]"></div>
+                            </label>
+                        </div>
+
+                        <div className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] overflow-hidden">
+                            {/* Calendar Header */}
+                            <div className="flex items-center justify-between px-6 py-4 border-b-4 border-black bg-black text-white">
+                                <button onClick={prevMonth} className="p-2 hover:bg-signal transition-colors">
+                                    <ChevronLeft className="w-5 h-5" />
+                                </button>
+                                <div className="flex items-center gap-4">
+                                    <h2 className="font-heading font-black text-xl uppercase tracking-widest">
+                                        {MONTH_NAMES[currentMonth]} {currentYear}
+                                    </h2>
+                                    <button
+                                        onClick={goToday}
+                                        className="font-mono text-xs bg-signal px-3 py-1 font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-colors"
+                                    >
+                                        Today
+                                    </button>
+                                </div>
+                                <button onClick={nextMonth} className="p-2 hover:bg-signal transition-colors">
+                                    <ChevronRight className="w-5 h-5" />
                                 </button>
                             </div>
-                            <button onClick={nextMonth} className="p-2 hover:bg-signal transition-colors">
-                                <ChevronRight className="w-5 h-5" />
-                            </button>
-                        </div>
 
-                        {/* Day Labels */}
-                        <div className="grid grid-cols-7 border-b-2 border-black">
-                            {DAY_LABELS.map((label) => (
-                                <div key={label} className="py-2 text-center font-mono text-xs font-black uppercase tracking-widest text-black/50 border-r last:border-r-0 border-black/10">
-                                    {label}
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Calendar Days */}
-                        <div className="grid grid-cols-7">
-                            {calendarDays.map((day, idx) => {
-                                const dayEvents = day ? getEventsForDay(day) : [];
-                                return (
-                                    <div
-                                        key={idx}
-                                        className={`min-h-[100px] p-2 border-r border-b border-black/10 transition-colors ${day ? "bg-white hover:bg-offwhite" : "bg-offwhite/50"
-                                            } ${isToday(day!) ? "ring-4 ring-inset ring-signal" : ""}`}
-                                    >
-                                        {day && (
-                                            <>
-                                                <span className={`font-mono text-sm font-bold ${isToday(day) ? "bg-signal text-white px-1.5 py-0.5" : "text-black/70"}`}>
-                                                    {day}
-                                                </span>
-                                                <div className="mt-1 space-y-1">
-                                                    {dayEvents.map((ev, eidx) => {
-                                                        const colors = eventColors[ev.type];
-                                                        return (
-                                                            <a
-                                                                key={eidx}
-                                                                href={getGCalLink(ev)}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className={`block px-1.5 py-0.5 text-[10px] font-mono font-bold truncate border-l-2 ${colors.bg} ${colors.text} ${colors.border} hover:brightness-90 transition-all`}
-                                                                title={`${ev.label} — Click to add to Google Calendar`}
-                                                            >
-                                                                {ev.label}
-                                                            </a>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </>
-                                        )}
+                            {/* Day Labels */}
+                            <div className="grid grid-cols-7 border-b-2 border-black">
+                                {DAY_LABELS.map((label) => (
+                                    <div key={label} className="py-2 text-center font-mono text-xs font-black uppercase tracking-widest text-black/50 border-r last:border-r-0 border-black/10">
+                                        {label}
                                     </div>
-                                );
-                            })}
+                                ))}
+                            </div>
+
+                            {/* Calendar Days */}
+                            <div className="grid grid-cols-7">
+                                {calendarDays.map((day, idx) => {
+                                    const dayEvents = day ? getEventsForDay(day) : [];
+                                    return (
+                                        <div
+                                            key={idx}
+                                            className={`min-h-[100px] p-2 border-r border-b border-black/10 transition-colors ${day ? "bg-white hover:bg-offwhite" : "bg-offwhite/50"
+                                                } ${isToday(day!) ? "ring-4 ring-inset ring-signal" : ""}`}
+                                        >
+                                            {day && (
+                                                <>
+                                                    <span className={`font-mono text-sm font-bold ${isToday(day) ? "bg-signal text-white px-1.5 py-0.5" : "text-black/70"}`}>
+                                                        {day}
+                                                    </span>
+                                                    <div className="mt-1 space-y-1">
+                                                        {dayEvents.map((ev, eidx) => {
+                                                            const colors = eventColors[ev.type];
+                                                            return (
+                                                                <a
+                                                                    key={eidx}
+                                                                    href={getGCalLink(ev)}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className={`block px-1.5 py-0.5 text-[10px] font-mono font-bold truncate border-l-2 ${colors.bg} ${colors.text} ${colors.border} hover:brightness-90 transition-all`}
+                                                                    title={`${ev.label} — Click to add to Google Calendar`}
+                                                                >
+                                                                    {ev.label}
+                                                                </a>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
 

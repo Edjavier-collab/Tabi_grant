@@ -8,6 +8,7 @@ export interface ReportConfig {
     outputFormat: 'docx' | 'email' | 'both';
     includeGlossary: boolean;
     includePhotos: boolean;
+    saveToDrive?: boolean;
 }
 
 export function useReportGenerator() {

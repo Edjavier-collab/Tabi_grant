@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Mail, ExternalLink, Loader2, RefreshCw, Search, Inbox } from "lucide-react";
+import { Mail, ExternalLink, Loader2, RefreshCw, Search, Inbox, PenTool } from "lucide-react";
+import { useGmail } from "@/hooks/useGoogleWorkspace";
 
 interface GmailThread {
     id: string;
@@ -22,6 +23,8 @@ export const InboxPanel = ({ funderNames = [] }: Props) => {
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [connected, setConnected] = useState(true); // Assume connected until proven otherwise
+    const [drafting, setDrafting] = useState(false);
+    const { createDraft } = useGmail();
 
     const fetchInbox = async (query?: string) => {
         setLoading(true);
@@ -115,17 +118,54 @@ export const InboxPanel = ({ funderNames = [] }: Props) => {
                 </button>
             </div>
 
-            {/* Search */}
-            <div className="flex items-center gap-2 px-4 py-3 border-b-2 border-black bg-offwhite">
-                <Search className="w-4 h-4 text-black/40" />
-                <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && fetchInbox(searchQuery)}
-                    placeholder="Search inbox (e.g., Packard Foundation)"
-                    className="flex-1 bg-transparent font-mono text-sm outline-none placeholder:text-black/30"
-                />
+            {/* Search and Actions */}
+            <div className="flex items-center gap-4 px-4 py-3 border-b-2 border-black bg-offwhite">
+                <div className="flex-1 flex items-center gap-2">
+                    <Search className="w-4 h-4 text-black/40" />
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && fetchInbox(searchQuery)}
+                        placeholder="Search inbox..."
+                        className="flex-1 bg-transparent font-mono text-sm outline-none placeholder:text-black/30 w-full"
+                    />
+                </div>
+                {funderNames.length > 0 && (
+                    <button
+                        onClick={async () => {
+                            setDrafting(true);
+                            try {
+                                await createDraft(
+                                    funderNames[0].toLowerCase().replace(/\s+/g, '') + "@example.org",
+                                    `Grant Update: ${funderNames[0]}`,
+                                    `
+                                    <div style="font-family: monospace; color: #111; line-height: 1.6; max-width: 800px; margin: 0 auto;">
+                                        <div style="text-align: center; border-bottom: 4px solid #111; padding-bottom: 10px; margin-bottom: 10px;">
+                                            <img src="https://tabipofoundation.org/Logo/tabi_po_foundation_logo.png" alt="Tabi Po Foundation Logo" style="width: 100%; max-width: 800px; max-height: 320px; object-fit: contain;" />
+                                        </div>
+                                        <p style="font-size: 14px;"><strong>Hello,</strong></p>
+                                        <p style="font-size: 14px;">We wanted to provide a quick update on our recent grant progress...</p>
+                                        <br/>
+                                        <p style="font-size: 14px; font-weight: bold;">Best regards,</p>
+                                        <p style="font-size: 14px;">Tabi Po Foundation</p>
+                                    </div>
+                                    `,
+                                    true
+                                );
+                                alert("Draft created successfully in Gmail!");
+                            } catch (e) {
+                                alert("Failed to create draft");
+                            }
+                            setDrafting(false);
+                        }}
+                        disabled={drafting}
+                        className="flex items-center gap-2 bg-black text-white px-3 py-1.5 font-mono text-xs font-black uppercase tracking-widest hover:bg-[#FF3500] hover:text-black transition-colors border-2 border-black shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] whitespace-nowrap"
+                    >
+                        {drafting ? <Loader2 className="w-3 h-3 animate-spin" /> : <PenTool className="w-3 h-3" />}
+                        {drafting ? "Drafting..." : "Draft Follow-Up"}
+                    </button>
+                )}
             </div>
 
             {/* Content */}
@@ -175,7 +215,7 @@ export const InboxPanel = ({ funderNames = [] }: Props) => {
                                 </p>
                             </div>
                             <a
-                                href={`https://mail.google.com/mail/#inbox/${thread.id}`}
+                                href={`https://mail.google.com/mail/u/0/#inbox/${thread.id}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:text-signal shrink-0"

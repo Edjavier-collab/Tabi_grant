@@ -13,7 +13,8 @@ export function ReportGenerator() {
         donorPersona: "scientific",
         outputFormat: "both",
         includeGlossary: true,
-        includePhotos: true
+        includePhotos: true,
+        saveToDrive: false
     });
 
     const handleGenerate = async () => {
@@ -100,6 +101,20 @@ export function ReportGenerator() {
                                     <span className="font-mono text-sm font-black uppercase group-hover:text-[#FF3500] transition-colors">Generate Both</span>
                                 </label>
                             </div>
+                        </div>
+
+                        {/* Google Drive Integration element */}
+                        <div className="md:col-span-2 pt-2">
+                            <label className="flex items-center gap-3 cursor-pointer group bg-[#00FFFF]/10 border-2 border-[#00FFFF] p-3 inline-flex transition-colors hover:bg-[#00FFFF]/20">
+                                <input
+                                    type="checkbox"
+                                    checked={config.saveToDrive}
+                                    onChange={e => setConfig({ ...config, saveToDrive: e.target.checked })}
+                                    className="w-5 h-5 accent-[#00FFFF] border-2 border-black"
+                                />
+                                <span className="font-mono text-sm font-bold uppercase text-black">Save Backup to Google Drive</span>
+                                <FileText className="w-4 h-4 ml-2 text-[#00FFFF]" />
+                            </label>
                         </div>
                     </div>
 

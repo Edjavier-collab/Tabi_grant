@@ -1,5 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, ImageRun, AlignmentType } from 'docx';
+import fs from 'fs';
+import path from 'path';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -88,19 +90,48 @@ export async function generateWordDocument(reportData: any, letterhead: any) {
     website: "www.tabipofoundation.org"
   };
 
+  // Read logo image
+  let logoBuffer: Buffer | undefined;
+  try {
+    const logoPath = path.join(process.cwd(), 'public', 'Logo', 'tabi_po_foundation_logo.png');
+    logoBuffer = fs.readFileSync(logoPath);
+  } catch (err) {
+    console.warn("Could not load logo for report header:", err);
+  }
+
   const doc = new Document({
     sections: [{
       properties: {},
       children: [
+        ...(logoBuffer ? [
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new ImageRun({
+                data: logoBuffer,
+                transformation: {
+                  width: 800,
+                  height: 320,
+                },
+                type: 'png'
+              }),
+            ],
+            spacing: { after: 0 },
+          })
+        ] : [
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [new TextRun({ text: safeLetterhead.organizationName, bold: true, size: 32 })],
+            spacing: { after: 100 },
+          })
+        ]),
         new Paragraph({
-          children: [new TextRun({ text: safeLetterhead.organizationName, bold: true, size: 32 })],
-          spacing: { after: 100 },
-        }),
-        new Paragraph({
+          alignment: AlignmentType.CENTER,
           children: [new TextRun({ text: safeLetterhead.taxStatus, size: 20, color: '666666' })],
           spacing: { after: 200 },
         }),
         new Paragraph({
+          alignment: AlignmentType.CENTER,
           children: [new TextRun({ text: safeLetterhead.address, size: 20 })],
           spacing: { after: 400 },
         }),

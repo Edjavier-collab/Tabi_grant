@@ -89,8 +89,10 @@ export const EmailDraftPreview = ({ item, isOpen, onClose }: Props) => {
         alert("Email draft copied to clipboard!");
     };
 
+    const toAddress = item.grant.primaryContact?.email || `${item.grant.funderName.toLowerCase().replace(/\s+/g, "")}@foundation.org`;
+
     const handleOpenGmail = () => {
-        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        const gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&fs=1&to=${encodeURIComponent(toAddress)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         window.open(gmailUrl, "_blank");
     };
 
@@ -118,7 +120,7 @@ export const EmailDraftPreview = ({ item, isOpen, onClose }: Props) => {
                         <div className="flex items-center gap-4">
                             <span className="font-mono text-xs font-black uppercase tracking-widest text-black/50 w-16">To:</span>
                             <span className="font-mono text-sm font-bold text-black/70">
-                                {item.grant.primaryContact?.email || `${item.grant.funderName.toLowerCase().replace(/\s+/g, "")}@foundation.org`}
+                                {toAddress}
                             </span>
                         </div>
 

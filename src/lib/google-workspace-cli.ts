@@ -40,8 +40,8 @@ export const gmailCli = {
         }
     },
 
-    async createDraft(to: string, subject: string, body: string) {
-        const tempFile = `/tmp/email_${Date.now()}.txt`;
+    async createDraft(to: string, subject: string, body: string, isHtml: boolean = false) {
+        const tempFile = `/tmp/email_${Date.now()}.${isHtml ? 'html' : 'txt'}`;
         await fs.writeFile(tempFile, body);
         try {
             const { stdout } = await execAsync(

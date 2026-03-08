@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, AlertTriangle } from "lucide-react";
+import { Clock, AlertTriangle, CalendarPlus } from "lucide-react";
 
 export function MonitoringReminders() {
     return (
@@ -18,10 +18,14 @@ export function MonitoringReminders() {
                         <span className="block text-xl">7</span>
                         <span className="block text-[10px] uppercase">Days</span>
                     </div>
-                    <div>
+                    <div className="flex-1">
                         <p className="font-heading font-black uppercase text-lg leading-tight">Q1 Progress Report</p>
                         <p className="font-mono text-xs font-bold text-black/60 uppercase mt-1">Moore Foundation</p>
                     </div>
+                    <button className="p-2 border-2 border-transparent hover:border-black hover:bg-black hover:text-white transition-all group relative">
+                        <CalendarPlus className="w-5 h-5" />
+                        <span className="absolute -top-8 right-0 bg-black text-white text-[10px] uppercase px-2 py-1 opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none">Add to GCal</span>
+                    </button>
                 </div>
 
                 <div className="p-4 flex items-center gap-4 hover:bg-[#F8F8F8] cursor-pointer transition-colors opacity-70">
@@ -29,10 +33,14 @@ export function MonitoringReminders() {
                         <span className="block text-xl">42</span>
                         <span className="block text-[10px] uppercase">Days</span>
                     </div>
-                    <div>
+                    <div className="flex-1">
                         <p className="font-heading font-black uppercase text-lg leading-tight">Annual Narrative</p>
                         <p className="font-mono text-xs font-bold text-black/60 uppercase mt-1">UNDP SGP</p>
                     </div>
+                    <button className="p-2 border-2 border-transparent hover:border-black hover:bg-black hover:text-white transition-all group relative">
+                        <CalendarPlus className="w-5 h-5" />
+                        <span className="absolute -top-8 right-0 bg-black text-white text-[10px] uppercase px-2 py-1 opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none">Add to GCal</span>
+                    </button>
                 </div>
             </div>
         </div>

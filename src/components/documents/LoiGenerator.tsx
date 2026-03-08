@@ -56,11 +56,11 @@ export const LoiGenerator = ({ grant, isOpen, onClose }: Props) => {
         // Fetch logo for embedding in docx
         let logoImageRun: ImageRun | null = null;
         try {
-            const logoRes = await fetch("/logo.png");
+            const logoRes = await fetch("/Logo/tabi_po_foundation_logo.png");
             const logoBlob = await logoRes.arrayBuffer();
             logoImageRun = new ImageRun({
                 data: logoBlob,
-                transformation: { width: 120, height: 120 },
+                transformation: { width: 800, height: 320 },
                 type: "png",
             });
         } catch { /* Logo fetch failed, proceed without */ }
@@ -72,44 +72,12 @@ export const LoiGenerator = ({ grant, isOpen, onClose }: Props) => {
             headerChildren.push(
                 new Paragraph({
                     alignment: AlignmentType.CENTER,
-                    spacing: { after: 100 },
+                    spacing: { after: 10 },
                     children: [logoImageRun],
                 })
             );
         }
 
-        // Org name
-        headerChildren.push(
-            new Paragraph({
-                alignment: AlignmentType.CENTER,
-                spacing: { after: 100 },
-                children: [
-                    new TextRun({
-                        text: "TABI PO FOUNDATION",
-                        bold: true,
-                        size: 32,
-                        font: "Arial",
-                    }),
-                ],
-            })
-        );
-
-        // Tagline
-        headerChildren.push(
-            new Paragraph({
-                alignment: AlignmentType.CENTER,
-                spacing: { after: 50 },
-                children: [
-                    new TextRun({
-                        text: "Saving Philippine Forests, One Barrio at a time",
-                        size: 18,
-                        font: "Arial",
-                        italics: true,
-                        color: "444444",
-                    }),
-                ],
-            })
-        );
 
         // Tax status
         headerChildren.push(
@@ -306,10 +274,8 @@ export const LoiGenerator = ({ grant, isOpen, onClose }: Props) => {
                         <div className="max-w-[600px] mx-auto">
                             {/* Letterhead Preview */}
                             <div className="text-center mb-6 pb-4 border-b-2 border-black">
-                                <img src="/logo.png" alt="Tabi Po Foundation" className="w-24 h-24 mx-auto mb-3 object-contain" style={{ mixBlendMode: 'multiply' }} />
-                                <h3 className="font-heading text-2xl font-black uppercase tracking-tighter">Tabi Po Foundation</h3>
-                                <p className="font-mono text-[11px] text-black/50 italic">Saving Philippine Forests, One Barrio at a time</p>
-                                <p className="font-mono text-xs text-black/50 italic mt-0.5">A 501(c)(3) Tax-Exempt Organization | EIN: 88-33456484</p>
+                                <img src="/Logo/tabi_po_foundation_logo.png" alt="Tabi Po Foundation Logo" className="w-[800px] h-[320px] mx-auto mb-0 object-contain" style={{ mixBlendMode: 'multiply' }} />
+                                <p className="font-mono text-xs text-black/50 italic -mt-10">A 501(c)(3) Tax-Exempt Organization | EIN: 88-33456484</p>
                                 <p className="font-mono text-[10px] text-black/30 mt-1">P.O. Box 10163, Palm Desert, California, USA 92255</p>
                                 <p className="font-mono text-[10px] text-black/30 mt-0.5">www.tabipofoundation.org | email@tabipofoundation.org</p>
                             </div>

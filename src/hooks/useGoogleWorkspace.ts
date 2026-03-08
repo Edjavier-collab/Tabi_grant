@@ -21,12 +21,12 @@ export function useGmail() {
         return response.json();
     }
 
-    async function createDraft(to: string, subject: string, body: string) {
+    async function createDraft(to: string, subject: string, body: string, isHtml: boolean = false) {
         setLoading(true);
         const response = await fetch('/api/gmail/draft', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ to, subject, body })
+            body: JSON.stringify({ to, subject, body, isHtml })
         });
         setLoading(false);
         return response.json();

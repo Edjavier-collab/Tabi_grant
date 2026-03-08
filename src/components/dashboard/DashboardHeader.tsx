@@ -28,7 +28,7 @@ export const DashboardHeader = ({ title, actionButton }: Props) => {
                 </Link>
                 <div className="h-8 w-1 bg-black"></div>
                 <div className="font-mono text-sm font-bold uppercase tracking-[0.2em] text-signal">
-                    [ {title} ]
+                    {title}
                 </div>
             </div>
 

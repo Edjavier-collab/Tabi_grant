@@ -174,7 +174,7 @@ export const NewGrantModal = ({ isOpen, onClose, onSuccess }: Props) => {
                                 className="w-full px-4 py-4 bg-offwhite border-2 border-black font-mono text-base font-bold focus:outline-none focus:bg-white focus:shadow-[4px_4px_0px_0px_rgba(230,59,46,1)] transition-all appearance-none rounded-none"
                             >
                                 <option value="" disabled>SELECT INTERNAL PROJECT &darr;</option>
-                                <option value="Roots & Rivers">Roots & Rivers (Davao)</option>
+                                <option value="Roots & Rivers">Roots & Rivers</option>
                                 <option value="Bantay Bukid Patrols">Bantay Bukid Patrols</option>
                                 <option value="General Ops">General Operations</option>
                             </select>
