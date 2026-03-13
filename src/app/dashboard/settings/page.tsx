@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { Settings, Mail, FileText, Calendar, Save, CheckCircle2 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { Mail, FileText, Save, CheckCircle2 } from "lucide-react";
 
 export default function SettingsPage() {
     const [saved, setSaved] = useState(false);
@@ -23,37 +22,6 @@ export default function SettingsPage() {
     const [customInstructions, setCustomInstructions] = useState(
         "Always mention our partnership with Aluyan Caduha-an Farmers Association. Emphasize community-led approach. Reference our track record in Northern Negros. Keep tone humble but confident."
     );
-
-    // Gmail status — detect from URL params after OAuth callback or fetch from API
-    const searchParams = useSearchParams();
-    const [gmailConnected, setGmailConnected] = useState(false);
-    const [isCheckingGmail, setIsCheckingGmail] = useState(true);
-
-    useEffect(() => {
-        // Immediate visual feedback if returning from OAuth
-        if (searchParams.get("gmail") === "connected") {
-            setGmailConnected(true);
-            setIsCheckingGmail(false);
-            return;
-        }
-
-        // Otherwise, ask the backend if we have tokens
-        const checkStatus = async () => {
-            try {
-                const res = await fetch("/api/auth/gmail/status");
-                if (res.ok) {
-                    const data = await res.json();
-                    setGmailConnected(!!data.connected);
-                }
-            } catch (error) {
-                console.error("Failed to check Gmail status", error);
-            } finally {
-                setIsCheckingGmail(false);
-            }
-        };
-
-        checkStatus();
-    }, [searchParams]);
 
     const handleSave = () => {
         // In a real implementation, this would save to Firestore /settings/
@@ -134,45 +102,6 @@ export default function SettingsPage() {
                                     className="w-full px-4 py-3 bg-offwhite border-2 border-black font-mono text-sm leading-relaxed focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(230,59,46,1)] transition-all resize-none"
                                 />
                             </div>
-                        </div>
-                    </section>
-
-                    {/* Gmail Connection */}
-                    <section className="border-4 border-black bg-white shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] overflow-hidden">
-                        <div className="px-6 py-4 border-b-4 border-black bg-black text-white flex items-center gap-3">
-                            <Settings className="w-5 h-5" />
-                            <h2 className="font-heading font-black text-base uppercase tracking-widest">Gmail Integration</h2>
-                        </div>
-                        <div className="p-6">
-                            {isCheckingGmail ? (
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3 p-4 bg-gray-50 border-2 border-gray-300">
-                                        <div className="w-5 h-5 rounded-full border-2 border-gray-400 border-t-transparent animate-spin" />
-                                        <span className="font-mono text-sm font-bold text-gray-600">Checking connection status...</span>
-                                    </div>
-                                </div>
-                            ) : gmailConnected ? (
-                                <div className="flex items-center gap-3 p-4 bg-emerald-50 border-2 border-emerald-500">
-                                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                                    <span className="font-mono text-sm font-bold text-emerald-800">Connected to tabipofoundation.org</span>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3 p-4 bg-amber-50 border-2 border-amber-500">
-                                        <Calendar className="w-5 h-5 text-amber-600" />
-                                        <span className="font-mono text-sm font-bold text-amber-800">Gmail not connected yet</span>
-                                    </div>
-                                    <p className="font-mono text-xs text-black/50 leading-relaxed">
-                                        Connect your tabipofoundation.org Gmail workspace to enable inbox monitoring, email classification, and send-from-dashboard features.
-                                    </p>
-                                    <a
-                                        href="/api/auth/gmail"
-                                        className="inline-block px-6 py-3 bg-signal text-white border-2 border-black font-heading text-sm font-black uppercase tracking-widest hover:bg-black transition-all shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px]"
-                                    >
-                                        Connect Gmail
-                                    </a>
-                                </div>
-                            )}
                         </div>
                     </section>
 

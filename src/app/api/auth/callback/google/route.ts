@@ -46,10 +46,10 @@ export async function GET(req: NextRequest) {
             });
         }
 
-        // Redirect to settings page with success
-        return NextResponse.redirect(new URL("/dashboard/settings?gmail=connected", req.url));
+        // Redirect to profile page with success
+        return NextResponse.redirect(new URL("/dashboard/profile?workspace=connected", req.url));
     } catch (error) {
         console.error("OAuth callback error:", error);
-        return NextResponse.redirect(new URL("/dashboard/settings?gmail=error", req.url));
+        return NextResponse.redirect(new URL("/dashboard/profile?workspace=error", req.url));
     }
 }

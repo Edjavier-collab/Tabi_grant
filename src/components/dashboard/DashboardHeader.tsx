@@ -74,11 +74,15 @@ export const DashboardHeader = ({ title, actionButton }: Props) => {
                 <div className="h-8 w-1 bg-black"></div>
 
                 <div className="flex items-center gap-3">
-                    {user?.photoURL ? (
-                        <img src={user.photoURL} alt="Profile" className="h-10 w-10 border-2 border-black rounded-none shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]" />
-                    ) : (
-                        <div className="h-10 w-10 border-2 border-black bg-offwhite shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]"></div>
-                    )}
+                    <Link href="/dashboard/profile" title="User Profile">
+                        {user?.photoURL ? (
+                            <img src={user.photoURL} alt="Profile" className="h-10 w-10 border-2 border-black rounded-none shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all cursor-pointer" />
+                        ) : (
+                            <div className="h-10 w-10 border-2 border-black bg-offwhite shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all cursor-pointer flex items-center justify-center">
+                                <span className="font-mono font-bold text-xs">Me</span>
+                            </div>
+                        )}
+                    </Link>
                     <button
                         onClick={handleLogout}
                         className="flex h-10 w-10 items-center justify-center border-2 border-black bg-offwhite transition-all hover:bg-signal hover:text-white shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:shadow-[1px_1px_0px_0px_rgba(17,17,17,1)] hover:translate-x-[1px] hover:translate-y-[1px]"
