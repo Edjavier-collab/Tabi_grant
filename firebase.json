@@ -2,19 +2,6 @@
     "firestore": {
         "rules": "firestore.rules"
     },
-    "hosting": {
-        "source": ".",
-        "ignore": [
-            "firebase.json",
-            "**/.*",
-            "!**/.*.env",
-            "!**/.env",
-            "**/node_modules/**"
-        ],
-        "frameworksBackend": {
-            "region": "us-central1"
-        }
-    },
     "functions": [
         {
             "source": "functions",
