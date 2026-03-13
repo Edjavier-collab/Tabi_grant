@@ -23,9 +23,10 @@ jobs:
       - name: Install dependencies (Backend)
         run: npm ci --prefix functions
 
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
       - name: Deploy to Firebase
-        uses: wix/firebase-action@v3.2.1
-        with:
-          args: deploy -m "Automated deployment from GitHub Actions"
+        run: firebase deploy -m "Automated deployment from GitHub Actions"
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
