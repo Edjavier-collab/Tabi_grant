@@ -28,6 +28,8 @@ export interface GrantDocument {
     addedAt: string; // ISO date string
 }
 
+export type GrantStatus = "active" | "archived" | "deleted";
+
 export interface Grant {
     id: string; // Firestore document ID
     funderName: string;
@@ -40,6 +42,7 @@ export interface Grant {
         phone?: string;
     };
     currentStage: Stage;
+    status?: GrantStatus;
     loiDeadline?: string | null; // ISO date string
     proposalDeadline?: string; // ISO date string
     decisionExpectedDate?: string; // ISO date string

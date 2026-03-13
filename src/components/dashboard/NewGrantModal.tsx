@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Stage } from "@/types/grant";
+import { addGrant, updateGrant } from "@/lib/firebase/db";
 import { Sparkles, X } from "lucide-react";
 
 interface Props {
@@ -40,15 +41,24 @@ export const NewGrantModal = ({ isOpen, onClose, onSuccess }: Props) => {
                 ...(deadline ? { loiDeadline: new Date(deadline).toISOString() } : {}),
             };
 
-            const response = await fetch("/api/grants", {
+            // Write directly to Firestore from client (where Firebase Auth is active)
+            const grantId = await addGrant(grantData);
+
+            // Fire-and-forget workspace sync (Drive folder + Calendar)
+            fetch("/api/grants/sync", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(grantData),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to add grant via API");
-            }
+                body: JSON.stringify({ grantId, funderName, loiDeadline: grantData.loiDeadline }),
+            })
+                .then(async (res) => {
+                    if (res.ok) {
+                        const { folderLink } = await res.json();
+                        if (folderLink) {
+                            await updateGrant(grantId, { fpicDocumentUrl: folderLink });
+                        }
+                    }
+                })
+                .catch((err) => console.error("Workspace sync error (non-blocking):", err));
 
             setLoading(false);
             onSuccess();

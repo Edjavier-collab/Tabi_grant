@@ -1,79 +1,90 @@
 "use client";
 
-import React, { useState } from "react";
-import { AlertTriangle, Bell, X } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Grant } from "@/types/grant";
+import { AlertTriangle, Bell, X, Clock } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
-// For the MVP, we hardcode the 2026 priority cycles to simulate the alert banner logic.
-const PRIORITY_CYCLES = [
-    {
-        month: 2, // 0-indexed March
-        year: 2026,
-        name: "Spring LOI",
-        foundations: ["Packard", "Moore", "Hewlett"],
-        actions: [
-            "Finalize Roots & Rivers LOI for Packard (due Mar 15)",
-            "Research Moore Foundation spring priorities",
-            "Update project metrics for Q1 reporting",
-        ]
-    },
-    {
-        month: 5, // 0-indexed June
-        year: 2026,
-        name: "Summer/Fall Proposal",
-        foundations: ["Christensen", "ClimateWorks"],
-        actions: [
-            "Submit full proposal for Christensen",
-            "Prepare mid-year reports"
-        ]
-    },
-    {
-        month: 8, // 0-indexed September
-        year: 2026,
-        name: "Year-End Planning",
-        foundations: ["Patagonia", "REI", "Corporate"],
-        actions: [
-            "Submit end-of-year grant extensions",
-            "Pitch REI for next year funding"
-        ]
-    }
-];
+interface Props {
+    grants: Grant[];
+}
 
-export const PriorityAlertBanner = () => {
+interface UpcomingDeadline {
+    grant: Grant;
+    deadlineDate: Date;
+    deadlineType: "LOI" | "Proposal";
+    daysUntil: number;
+}
+
+const getAction = (d: UpcomingDeadline): string => {
+    const label = d.deadlineType === "LOI" ? "LOI" : "Proposal";
+    const timeLeft = formatDistanceToNow(d.deadlineDate, { addSuffix: true });
+    return `${label} deadline for ${d.grant.funderName} — ${d.grant.projectLinked} (${timeLeft})`;
+};
+
+export const PriorityAlertBanner = ({ grants }: Props) => {
     const [dismissed, setDismissed] = useState(false);
 
-    // Use the actual current date
-    const currentDate = new Date();
+    const upcoming = useMemo(() => {
+        const now = new Date();
+        const horizon = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days out
+        const deadlines: UpcomingDeadline[] = [];
 
-    const activeCycle = PRIORITY_CYCLES.find(c => {
-        // Find if we are within 30 days before or during the target month
-        const cycleDate = new Date(c.year, c.month, 15);
-        const timeDiff = cycleDate.getTime() - currentDate.getTime();
-        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        return daysDiff >= -15 && daysDiff <= 45; // roughly 45 days before, 15 days after
-    });
+        for (const grant of grants) {
+            if (grant.status === "archived" || grant.status === "deleted") continue;
 
-    if (!activeCycle || dismissed) return null;
+            if (grant.loiDeadline) {
+                const d = new Date(grant.loiDeadline);
+                if (d >= now && d <= horizon) {
+                    deadlines.push({
+                        grant,
+                        deadlineDate: d,
+                        deadlineType: "LOI",
+                        daysUntil: Math.ceil((d.getTime() - now.getTime()) / (1000 * 3600 * 24)),
+                    });
+                }
+            }
+
+            if (grant.proposalDeadline) {
+                const d = new Date(grant.proposalDeadline);
+                if (d >= now && d <= horizon) {
+                    deadlines.push({
+                        grant,
+                        deadlineDate: d,
+                        deadlineType: "Proposal",
+                        daysUntil: Math.ceil((d.getTime() - now.getTime()) / (1000 * 3600 * 24)),
+                    });
+                }
+            }
+        }
+
+        return deadlines.sort((a, b) => a.daysUntil - b.daysUntil);
+    }, [grants]);
+
+    if (upcoming.length === 0 || dismissed) return null;
+
+    const urgentCount = upcoming.filter((d) => d.daysUntil <= 7).length;
+    const funderNames = [...new Set(upcoming.map((d) => d.grant.funderName))];
 
     return (
         <div className="mb-8 border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(230,59,46,1)] animate-in slide-in-from-top-4 duration-300 relative overflow-hidden">
-            {/* Background pattern */}
             <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }}></div>
 
             <div className="relative z-10 flex flex-col md:flex-row">
-                {/* Alert Header/Icon */}
                 <div className="bg-signal text-white p-6 border-b-4 md:border-b-0 md:border-r-4 border-black flex flex-col items-center justify-center shrink-0 min-w-[200px]">
                     <Bell className="w-10 h-10 mb-2 animate-pulse" />
                     <h3 className="font-heading font-black text-xl uppercase text-center tracking-tight leading-none">
-                        Priority<br />Cycle Alert
+                        Upcoming<br />Deadlines
                     </h3>
                 </div>
 
-                {/* Alert Content */}
                 <div className="p-6 flex-1 text-black">
                     <div className="flex justify-between items-start mb-4">
                         <p className="font-mono text-sm leading-relaxed max-w-2xl font-bold">
                             <span className="text-signal mr-2">{"//"}</span>
-                            {activeCycle.name} cycle ({activeCycle.year}) is approaching for {activeCycle.foundations.join(", ")}.
+                            {upcoming.length} deadline{upcoming.length !== 1 ? "s" : ""} in the next 30 days
+                            {urgentCount > 0 ? ` (${urgentCount} this week)` : ""}
+                            {" — "}{funderNames.join(", ")}.
                         </p>
                         <button
                             onClick={() => setDismissed(true)}
@@ -87,22 +98,18 @@ export const PriorityAlertBanner = () => {
                     <div className="bg-offwhite border-2 border-black p-4">
                         <h4 className="font-mono text-xs font-black uppercase tracking-widest text-black/50 mb-3 flex items-center gap-2">
                             <AlertTriangle className="w-3 h-3" />
-                            Recommended Actions
+                            Action Required
                         </h4>
                         <ul className="space-y-2">
-                            {activeCycle.actions.map((action, idx) => (
+                            {upcoming.map((d, idx) => (
                                 <li key={idx} className="font-mono text-sm flex gap-3 items-start">
-                                    <span className="text-signal font-black">→</span>
-                                    <span>{action}</span>
+                                    <span className={d.daysUntil <= 7 ? "text-signal font-black" : "text-black/40 font-black"}>
+                                        {d.daysUntil <= 7 ? <AlertTriangle className="w-4 h-4 inline" /> : <Clock className="w-4 h-4 inline" />}
+                                    </span>
+                                    <span className={d.daysUntil <= 7 ? "font-bold" : ""}>{getAction(d)}</span>
                                 </li>
                             ))}
                         </ul>
-                    </div>
-
-                    <div className="mt-4 flex gap-4">
-                        <button className="px-4 py-2 bg-black text-white font-mono text-xs font-bold tracking-widest uppercase hover:bg-signal transition-colors shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]">
-                            View All Deadlines
-                        </button>
                     </div>
                 </div>
             </div>

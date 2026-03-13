@@ -3,32 +3,29 @@
 import React, { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Grant, Stage, STAGES } from "@/types/grant";
-import { subscribeToGrants, updateGrantStage } from "@/lib/firebase/db";
+import { updateGrantStage } from "@/lib/firebase/db";
 import { GrantCard } from "./GrantCard";
 import { FpicModal } from "./FpicModal";
-import { FollowupQueue } from "./FollowupQueue";
-import { useFollowups } from "@/hooks/useFollowups";
 import { LoiGenerator } from "@/components/documents/LoiGenerator";
 import { AnalyticsWidgets } from "./AnalyticsWidgets";
 
-export const KanbanBoard = () => {
-    const [grants, setGrants] = useState<Grant[]>([]);
-    const [loading, setLoading] = useState(true);
+interface KanbanBoardProps {
+    initialGrants: Grant[];
+}
+
+export const KanbanBoard = ({ initialGrants }: KanbanBoardProps) => {
+    const [grants, setGrants] = useState<Grant[]>(initialGrants);
+    const [showArchived, setShowArchived] = useState(false);
 
     // FPIC Modal State
     const [fpicGrant, setFpicGrant] = useState<Grant | null>(null);
     const [isFpicModalOpen, setIsFpicModalOpen] = useState(false);
     const [loiGrant, setLoiGrant] = useState<Grant | null>(null);
     const [isLoiOpen, setIsLoiOpen] = useState(false);
-    const followups = useFollowups(grants);
 
     useEffect(() => {
-        const unsubscribe = subscribeToGrants((data) => {
-            setGrants(data);
-            setLoading(false);
-        });
-        return () => unsubscribe();
-    }, []);
+        setGrants(initialGrants);
+    }, [initialGrants]);
 
     const onDragEnd = async (result: DropResult) => {
         const { destination, source, draggableId } = result;
@@ -86,14 +83,31 @@ export const KanbanBoard = () => {
         setGrants(updatedGrants);
     };
 
+    // FILTER GRANTS BASED ON STATUS
+    const filteredGrants = grants.filter((g) => {
+        if (g.status === "deleted") return false;
+        if (showArchived) return g.status === "archived";
+        return !g.status || g.status === "active";
+    });
+
     return (
         <>
-            <AnalyticsWidgets grants={grants} />
-            <FollowupQueue items={followups} />
+            <div className="flex items-center justify-between mb-6">
+                <AnalyticsWidgets grants={filteredGrants} />
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => setShowArchived(!showArchived)}
+                        className={`px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest border-2 border-black transition-all shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:shadow-none active:translate-x-1 active:translate-y-1 ${showArchived ? "bg-signal text-white" : "bg-white text-black hover:bg-offwhite"
+                            }`}
+                    >
+                        {showArchived ? "Viewing Archived" : "View Archive"}
+                    </button>
+                </div>
+            </div>
             <DragDropContext onDragEnd={onDragEnd}>
                 <div className="flex min-h-[400px] max-h-[calc(100vh-400px)] w-full gap-4 md:gap-6 overflow-x-auto pb-6 pr-4 md:pr-8 snap-x scrollbar-brutalist">
                     {STAGES.map((stage) => {
-                        const columnGrants = grants.filter((g) => g.currentStage === stage);
+                        const columnGrants = filteredGrants.filter((g) => g.currentStage === stage);
 
                         return (
                             <div

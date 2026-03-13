@@ -1,15 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { KanbanBoard } from "@/components/dashboard/KanbanBoard";
 import { NewGrantModal } from "@/components/dashboard/NewGrantModal";
 import { PriorityAlertBanner } from "@/components/dashboard/PriorityAlertBanner";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
+import { FollowupQueue } from "@/components/dashboard/FollowupQueue";
+import { useFollowups } from "@/hooks/useFollowups";
+import { subscribeToGrants } from "@/lib/firebase/db";
+import { Grant } from "@/types/grant";
 import { Plus, RefreshCcw } from "lucide-react";
 
 export default function DashboardPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
+    const [grants, setGrants] = useState<Grant[]>([]);
+
+    useEffect(() => {
+        const unsubscribe = subscribeToGrants((data) => {
+            setGrants(data);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const followups = useFollowups(grants);
 
     const handleSync = async () => {
         setIsSyncing(true);
@@ -57,8 +72,14 @@ export default function DashboardPage() {
                 {/* Background brutalist accents */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-signal/5 rounded-full blur-3xl -z-10 pointer-events-none translate-x-1/2 -translate-y-1/2"></div>
 
-                <PriorityAlertBanner />
-                <KanbanBoard />
+                <PriorityAlertBanner grants={grants} />
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <ActivityFeed />
+                    <FollowupQueue items={followups} />
+                </div>
+
+                <KanbanBoard initialGrants={grants} />
             </main>
 
             <NewGrantModal
