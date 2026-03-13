@@ -101,7 +101,9 @@ export const KanbanBoard = ({ initialGrants }: KanbanBoardProps) => {
     });
 
     // ANALYTICS SHOULD ALWAYS REFLECT ACTIVE PIPELINE
-    const activeGrantsForAnalytics = grants.filter(g => !g.status || g.status === "active");
+    const activeGrantsForAnalytics = grants.filter(g =>
+        (!g.status || g.status === "active") && STAGES.includes(g.currentStage)
+    );
 
     return (
         <>
