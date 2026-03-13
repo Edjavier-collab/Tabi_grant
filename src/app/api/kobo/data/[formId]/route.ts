@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { koboApi } from '@/lib/kobo-api';
 import { KOBO_FORM_MAPPING } from '@/lib/kobo-mapping';
+import { withAuth } from '@/lib/auth-api';
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ formId: string }> }) {
+export const GET = withAuth(async (request: NextRequest, { params }: { params: Promise<{ formId: string }> }) => {
     try {
         const { formId } = await params;
         const formInfo = KOBO_FORM_MAPPING[formId];
@@ -25,4 +26,4 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
-}
+});

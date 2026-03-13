@@ -32,7 +32,7 @@ export const KOBO_FORM_MAPPING: Record<string, any> = {
         ]
     },
     'photo_story': {
-        displayName: 'Roots and Rivers: Photo Story',
+        displayName: 'Roots & Rivers: Photo Story',
         uid: process.env.KOBO_PHOTO_UID || '',
         reportSection: 'Visual Evidence',
         metrics: [

@@ -1,14 +1,24 @@
 "use client";
 
-import { Table } from "lucide-react";
+import { Table, Loader2 } from "lucide-react";
 
-export function KoboDataTable({ formName, data }: { formName: string, data: any[] }) {
+export function KoboDataTable({ formName, data, loading }: { formName: string, data: any[], loading?: boolean }) {
+    if (loading) {
+        return (
+            <div className="border-4 border-black bg-white p-12 text-center shadow-[6px_6px_0px_0px_rgba(17,17,17,1)]">
+                <Loader2 className="w-12 h-12 mx-auto mb-4 text-signal animate-spin" />
+                <h3 className="font-heading text-xl font-black uppercase tracking-widest">Fetching Field Data...</h3>
+                <p className="font-mono text-black/60">Retrieving latest submissions from KoBoToolbox.</p>
+            </div>
+        );
+    }
+
     if (!data || data.length === 0) {
         return (
             <div className="border-4 border-black bg-white p-12 text-center shadow-[6px_6px_0px_0px_rgba(17,17,17,1)]">
                 <Table className="w-12 h-12 mx-auto mb-4 text-black/20" />
                 <h3 className="font-heading text-xl font-black uppercase tracking-widest mb-2">No Data Available</h3>
-                <p className="font-mono text-black/60">Sync the specific form or check connection.</p>
+                <p className="font-mono text-black/60">Sync the specific form or check connection if this is unexpected.</p>
             </div>
         );
     }
