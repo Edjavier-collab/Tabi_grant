@@ -10,6 +10,9 @@ const spaceMono = Space_Mono({ weight: ["400", "700"], subsets: ["latin"], varia
 export const metadata: Metadata = {
   title: "Tabi Grants | Command the Grant Lifecycle",
   description: "Zero loss grant tracking, context-aware draft engine, automatic evidence consolidation",
+  verification: {
+    google: "1B2f9GLLR6seXJMQGq1PsI1emiF9q-EDIXp_eeXtus4",
+  }
 };
 
 export default function RootLayout({
