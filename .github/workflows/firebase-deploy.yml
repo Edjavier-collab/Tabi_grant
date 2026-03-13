@@ -24,4 +24,6 @@ jobs:
         run: npm ci --prefix functions
 
       - name: Deploy to Firebase
-        run: npx firebase-tools deploy -m "Automated deployment from GitHub Actions" --token "${{ secrets.FIREBASE_TOKEN }}" --non-interactive
+        run: npx firebase-tools deploy -m "Automated deployment from GitHub Actions" --non-interactive
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
