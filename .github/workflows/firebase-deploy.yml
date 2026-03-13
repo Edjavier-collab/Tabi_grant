@@ -24,7 +24,9 @@ jobs:
         run: npm ci --prefix functions
 
       - name: Deploy to Firebase
-        run: npx firebase-tools deploy -m "Automated deployment from GitHub Actions" --non-interactive
+        run: |
+          npx firebase-tools experiments:enable webframeworks
+          npx firebase-tools deploy -m "Automated deployment from GitHub Actions" --non-interactive
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
