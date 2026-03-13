@@ -1,0 +1,31 @@
+name: Deploy to Firebase
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies (Frontend)
+        run: npm ci
+
+      - name: Install dependencies (Backend)
+        run: npm ci --prefix functions
+
+      - name: Deploy to Firebase
+        uses: wix/firebase-action@v3.2.1
+        with:
+          args: deploy -m "Automated deployment from GitHub Actions"
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
