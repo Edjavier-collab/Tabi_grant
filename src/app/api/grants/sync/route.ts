@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUserTokens } from "@/lib/firebase/db";
 import { createGrantFolder, syncDeadlineToCalendar } from "@/lib/google/workspace";
 import { cookies } from "next/headers";
+import { withAuth } from "@/lib/auth-api";
 
-export async function POST(req: NextRequest) {
+export const POST = withAuth(async (req: NextRequest) => {
     try {
         const cookieStore = await cookies();
         let accessToken = cookieStore.get("gmail_access_token")?.value;
@@ -51,4 +52,4 @@ export async function POST(req: NextRequest) {
         console.error("Workspace sync error:", error);
         return NextResponse.json({ folderLink: null });
     }
-}
+});

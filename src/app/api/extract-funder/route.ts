@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import * as cheerio from "cheerio";
+import { withAuth } from "@/lib/auth-api";
 
 // Initialize Gemini
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey || "");
 
-export async function POST(req: NextRequest) {
+export const POST = withAuth(async (req: NextRequest) => {
     if (!apiKey) {
         return NextResponse.json({ error: "Gemini API key not configured." }, { status: 500 });
     }
@@ -113,4 +114,4 @@ export async function POST(req: NextRequest) {
             { status: 500 }
         );
     }
-}
+});

@@ -1,15 +1,30 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Grants: any authenticated team member can read/write
-    match /grants/{grantId} {
-      allow read, write: if request.auth != null;
+    // Helper function to check user role
+    function hasRole(roleList) {
+      return request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in roleList;
     }
 
-    // Activity logs: authenticated users can read and create, but not modify history
+    // Grants: Authenticated members can read. Only admins/managers can write.
+    match /grants/{grantId} {
+      allow read: if request.auth != null;
+      allow write: if hasRole(['admin', 'manager']);
+    }
+
+    // Activity logs: Authenticated users can read and create (for audit trail). No deletions/updates.
     match /activity/{logId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
+      allow update, delete: if false; 
+    }
+
+    // User Profile: Users can read anyone's profile (for display), but only write their own.
+    // Exception: Admins can update roles.
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && (request.auth.uid == userId || hasRole(['admin']));
     }
 
     // User tokens: users can only access their own OAuth tokens
@@ -17,9 +32,10 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Settings: any authenticated team member can read/write
+    // Settings: Only admins can manage global settings
     match /settings/{doc} {
-      allow read, write: if request.auth != null;
+      allow read: if request.auth != null;
+      allow write: if hasRole(['admin']);
     }
   }
 }

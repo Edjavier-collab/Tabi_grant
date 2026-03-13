@@ -14,14 +14,51 @@ import {
 } from "firebase/firestore";
 import { Grant, Stage } from "@/types/grant";
 import { ActivityLog, ActivityType } from "@/types/activity";
+import { UserProfile, UserRole } from "@/types/user";
 
 const GRANTS_COLLECTION = "grants";
 const USER_TOKENS_COLLECTION = "userTokens";
 const ACTIVITY_COLLECTION = "activity";
+const USERS_COLLECTION = "users";
 
 // Helper to get typed reference
 const getGrantsRef = () => collection(db, GRANTS_COLLECTION);
 const getActivityRef = () => collection(db, ACTIVITY_COLLECTION);
+const getUsersRef = () => collection(db, USERS_COLLECTION);
+
+/**
+ * Sync user profile on login
+ */
+export const syncUserProfile = async (user: any): Promise<UserProfile> => {
+    const docRef = doc(db, USERS_COLLECTION, user.uid);
+    const snap = await getDoc(docRef);
+    const now = new Date().toISOString();
+
+    if (snap.exists()) {
+        const existingData = snap.data() as UserProfile;
+        const updatedProfile = {
+            ...existingData,
+            lastLogin: now,
+            displayName: user.displayName || existingData.displayName,
+            photoURL: user.photoURL || existingData.photoURL,
+        };
+        await setDoc(docRef, updatedProfile, { merge: true });
+        return updatedProfile;
+    } else {
+        // Default to 'manager' for new users (can be manually elevated to admin)
+        const newProfile: UserProfile = {
+            uid: user.uid,
+            email: user.email || "",
+            displayName: user.displayName || "Anonymous",
+            photoURL: user.photoURL || "",
+            role: "manager", // Default role
+            createdAt: now,
+            lastLogin: now,
+        };
+        await setDoc(docRef, newProfile);
+        return newProfile;
+    }
+};
 
 /**
  * Log an activity to Firestore
