@@ -23,10 +23,5 @@ jobs:
       - name: Install dependencies (Backend)
         run: npm ci --prefix functions
 
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools
-
       - name: Deploy to Firebase
-        run: firebase deploy -m "Automated deployment from GitHub Actions"
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: npx firebase-tools deploy -m "Automated deployment from GitHub Actions" --token "${{ secrets.FIREBASE_TOKEN }}" --non-interactive
