@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
@@ -15,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies (Frontend)
         run: npm ci
@@ -23,7 +26,12 @@ jobs:
       - name: Install dependencies (Backend)
         run: npm ci --prefix functions
 
+      - name: Enable webframeworks experiment
+        run: npx firebase-tools@13 experiments:enable webframeworks --token "$FIREBASE_TOKEN"
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
       - name: Deploy to Firebase
-        run: npx firebase-tools deploy -m "Automated deployment from GitHub Actions" --non-interactive
+        run: npx firebase-tools@13 deploy --token "$FIREBASE_TOKEN" -m "Automated deployment from GitHub Actions" --non-interactive
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
