@@ -25,7 +25,7 @@ jobs:
 
       - name: Generate Environment Variables
         run: |
-          cat << EOF > .env.production
+          cat << EOF > .env
           FIREBASE_TOKEN=${{ secrets.FIREBASE_TOKEN }}
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
           KOBO_API_KEY=${{ secrets.KOBO_API_KEY }}
