@@ -42,6 +42,8 @@ jobs:
           KOBO_PATROL_UID=${{ secrets.KOBO_PATROL_UID }}
           KOBO_PHOTO_UID=${{ secrets.KOBO_PHOTO_UID }}
           EOF
+          echo "Generated .env file:"
+          ls -la .env
 
       - name: Deploy to Firebase
         run: |
