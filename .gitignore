@@ -43,3 +43,6 @@ dist/
 build/
 node_modules/
 *.log
+
+# service account keys
+github-actions-deploy key/

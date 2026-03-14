@@ -25,8 +25,8 @@ env:
     value: "1:392826963303:web:2c3bce31a951d8d3d75bc2"
     availability: [BUILD]
   - variable: NEXT_PUBLIC_APP_URL
-    value: https://tabi-grants-101.web.app
-    availability: [BUILD]
+    value: https://tabidashboard--tabi-grants-101.us-east4.hosted.app
+    availability: [BUILD, RUNTIME]
 
   # RUNTIME SECRETS (pulled from Cloud Secret Manager)
   - variable: GEMINI_API_KEY
