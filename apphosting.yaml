@@ -41,6 +41,9 @@ env:
   - variable: KOBO_API_KEY
     secret: KOBO_API_KEY
     availability: [RUNTIME]
+  - variable: APP_URL
+    value: https://tabidashboard--tabi-grants-101.us-east4.hosted.app
+    availability: [RUNTIME]
   - variable: KOBO_API_URL
     value: https://kf.kobotoolbox.org/api/v2
     availability: [RUNTIME]
