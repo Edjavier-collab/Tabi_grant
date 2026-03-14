@@ -19,16 +19,14 @@ export const WORKSPACE_SCOPES = [
 ];
 
 export function getOAuth2Client() {
-    const baseUrl = process.env.NEXTAUTH_URL || process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL;
-    
-    if (!baseUrl && process.env.NODE_ENV === 'production') {
-        console.warn("Warning: No base URL (NEXTAUTH_URL) defined in production environment.");
-    }
+    const redirectUri = process.env.NEXTAUTH_URL 
+        ? `${process.env.NEXTAUTH_URL}/api/auth/callback/google` 
+        : 'http://localhost:3000/api/auth/callback/google';
 
     return new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
         process.env.GOOGLE_CLIENT_SECRET,
-        `${baseUrl || "http://localhost:3000"}/api/auth/callback/google`
+        redirectUri
     );
 }
 
