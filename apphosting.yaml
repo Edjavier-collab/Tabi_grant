@@ -48,14 +48,14 @@ env:
     value: https://roots2river.vercel.app/impact
     availability: [RUNTIME]
   - variable: KOBO_TREE_PLANTING_UID
-    secret: KOBO_TREE_PLANTING_UID
+    value: aeznQ5W9EKmDF3yAWt8b5B
     availability: [RUNTIME]
   - variable: KOBO_WATERSHED_UID
-    secret: KOBO_WATERSHED_UID
+    value: aXduYQttRYVBEmtXTnJUHg
     availability: [RUNTIME]
   - variable: KOBO_PATROL_UID
-    secret: KOBO_PATROL_UID
+    value: atVxUazhWeBXJyLFHbPoEU
     availability: [RUNTIME]
   - variable: KOBO_PHOTO_UID
-    secret: KOBO_PHOTO_UID
+    value: ajvvrMyW2nJzq5KofvcxHR
     availability: [RUNTIME]
