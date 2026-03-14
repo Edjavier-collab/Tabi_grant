@@ -19,8 +19,8 @@ export const WORKSPACE_SCOPES = [
 ];
 
 export function getOAuth2Client() {
-    const redirectUri = process.env.NEXTAUTH_URL 
-        ? `${process.env.NEXTAUTH_URL}/api/auth/callback/google` 
+    const redirectUri = process.env.APP_URL
+        ? `${process.env.APP_URL}/api/auth/callback/google`
         : 'http://localhost:3000/api/auth/callback/google';
 
     return new google.auth.OAuth2(
