@@ -1,0 +1,61 @@
+runConfig:
+  runtime: nodejs20
+  minInstances: 0
+  maxInstances: 4
+  concurrency: 80
+
+env:
+  # BUILD-TIME PUBLIC VARS (safe to inline)
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyBkNWFwnBgSuxudp2KsPH6sldUnsyVCdj4
+    availability: [BUILD]
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: tabi-grants-101.firebaseapp.com
+    availability: [BUILD]
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: tabi-grants-101
+    availability: [BUILD]
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: tabi-grants-101.firebasestorage.app
+    availability: [BUILD]
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "392826963303"
+    availability: [BUILD]
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:392826963303:web:2c3bce31a951d8d3d75bc2"
+    availability: [BUILD]
+  - variable: NEXT_PUBLIC_APP_URL
+    value: https://tabi-grants-101.web.app
+    availability: [BUILD]
+
+  # RUNTIME SECRETS (pulled from Cloud Secret Manager)
+  - variable: GEMINI_API_KEY
+    secret: GEMINI_API_KEY
+    availability: [BUILD, RUNTIME]
+  - variable: GOOGLE_CLIENT_ID
+    secret: GOOGLE_CLIENT_ID
+    availability: [RUNTIME]
+  - variable: GOOGLE_CLIENT_SECRET
+    secret: GOOGLE_CLIENT_SECRET
+    availability: [RUNTIME]
+  - variable: KOBO_API_KEY
+    secret: KOBO_API_KEY
+    availability: [RUNTIME]
+  - variable: KOBO_API_URL
+    value: https://kf.kobotoolbox.org/api/v2
+    availability: [RUNTIME]
+  - variable: IMPACT_DASHBOARD_URL
+    value: https://roots2river.vercel.app/impact
+    availability: [RUNTIME]
+  - variable: KOBO_TREE_PLANTING_UID
+    secret: KOBO_TREE_PLANTING_UID
+    availability: [RUNTIME]
+  - variable: KOBO_WATERSHED_UID
+    secret: KOBO_WATERSHED_UID
+    availability: [RUNTIME]
+  - variable: KOBO_PATROL_UID
+    secret: KOBO_PATROL_UID
+    availability: [RUNTIME]
+  - variable: KOBO_PHOTO_UID
+    secret: KOBO_PHOTO_UID
+    availability: [RUNTIME]
