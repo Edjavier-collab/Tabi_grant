@@ -34,31 +34,31 @@ env:
     availability: [BUILD, RUNTIME]
   - variable: GOOGLE_CLIENT_ID
     secret: GOOGLE_CLIENT_ID
-    availability: [RUNTIME]
+    availability: [BUILD, RUNTIME]
   - variable: GOOGLE_CLIENT_SECRET
     secret: GOOGLE_CLIENT_SECRET
-    availability: [RUNTIME]
+    availability: [BUILD, RUNTIME]
   - variable: KOBO_API_KEY
     secret: KOBO_API_KEY
-    availability: [RUNTIME]
+    availability: [BUILD, RUNTIME]
   - variable: APP_URL
     value: https://tabi-grants-101.web.app
-    availability: [RUNTIME]
+    availability: [BUILD, RUNTIME]
   - variable: KOBO_API_URL
     value: https://kf.kobotoolbox.org/api/v2
-    availability: [RUNTIME]
+    availability: [BUILD, RUNTIME]
   - variable: IMPACT_DASHBOARD_URL
     value: https://roots2river.vercel.app/impact
-    availability: [RUNTIME]
+    availability: [BUILD, RUNTIME]
   - variable: KOBO_TREE_PLANTING_UID
     value: aeznQ5W9EKmDF3yAWt8b5B
-    availability: [RUNTIME]
+    availability: [BUILD, RUNTIME]
   - variable: KOBO_WATERSHED_UID
     value: aXduYQttRYVBEmtXTnJUHg
-    availability: [RUNTIME]
+    availability: [BUILD, RUNTIME]
   - variable: KOBO_PATROL_UID
     value: atVxUazhWeBXJyLFHbPoEU
-    availability: [RUNTIME]
+    availability: [BUILD, RUNTIME]
   - variable: KOBO_PHOTO_UID
     value: ajvvrMyW2nJzq5KofvcxHR
-    availability: [RUNTIME]
+    availability: [BUILD, RUNTIME]
