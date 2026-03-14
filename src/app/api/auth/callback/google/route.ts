@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const client = getOAuth2Client();
+        const client = getOAuth2Client(req.url);
         const { tokens } = await client.getToken(code);
 
         // Store tokens in HTTP-only cookies for session persistence

@@ -1,13 +1,5 @@
 import { google } from "googleapis";
 
-// Identity-only scopes — used for initial OAuth login.
-// These are the only scopes shown on the consent screen at sign-in.
-const AUTH_SCOPES = [
-    "openid",
-    "email",
-    "profile",
-];
-
 // Full Workspace scopes — requested only when user explicitly connects
 // their Google Workspace (Gmail, Drive, Calendar integration).
 export const WORKSPACE_SCOPES = [
@@ -18,10 +10,16 @@ export const WORKSPACE_SCOPES = [
     "https://www.googleapis.com/auth/calendar.events",
 ];
 
-export function getOAuth2Client() {
-    const redirectUri = process.env.APP_URL
-        ? `${process.env.APP_URL}/api/auth/callback/google`
-        : 'http://localhost:3000/api/auth/callback/google';
+export function getOAuth2Client(requestUrl?: string) {
+    let redirectUri: string;
+    if (requestUrl) {
+        const origin = new URL(requestUrl).origin;
+        redirectUri = `${origin}/api/auth/callback/google`;
+    } else if (process.env.APP_URL) {
+        redirectUri = `${process.env.APP_URL}/api/auth/callback/google`;
+    } else {
+        redirectUri = 'http://localhost:3000/api/auth/callback/google';
+    }
 
     return new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
@@ -30,17 +28,8 @@ export function getOAuth2Client() {
     );
 }
 
-export function getAuthUrl() {
-    const client = getOAuth2Client();
-    return client.generateAuthUrl({
-        access_type: "offline",
-        scope: AUTH_SCOPES,
-        prompt: "consent",
-    });
-}
-
-export function getWorkspaceAuthUrl() {
-    const client = getOAuth2Client();
+export function getWorkspaceAuthUrl(requestUrl?: string) {
+    const client = getOAuth2Client(requestUrl);
     return client.generateAuthUrl({
         access_type: "offline",
         scope: WORKSPACE_SCOPES,
