@@ -71,8 +71,8 @@ export default function Footer() {
                 <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-paper/10 font-mono text-[10px] text-paper/30 gap-4">
                     <div>© {new Date().getFullYear()} Tabi Po Foundation. All rights reserved.</div>
                     <div className="flex gap-6">
-                        <a href="#" className="hover:text-paper">Privacy Protocol</a>
-                        <a href="#" className="hover:text-paper">Terms of Service</a>
+                        <a href="/privacy" className="hover:text-paper">Privacy Protocol</a>
+                        <a href="/terms" className="hover:text-paper">Terms of Service</a>
                     </div>
                 </div>
             </footer>

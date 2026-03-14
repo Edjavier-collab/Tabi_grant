@@ -62,3 +62,6 @@ env:
   - variable: KOBO_PHOTO_UID
     value: ajvvrMyW2nJzq5KofvcxHR
     availability: [RUNTIME]
+  - variable: NEXTAUTH_URL
+    secret: NEXTAUTH_URL
+    availability: [RUNTIME]

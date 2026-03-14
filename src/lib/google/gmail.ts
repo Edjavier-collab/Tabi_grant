@@ -1,6 +1,16 @@
 import { google } from "googleapis";
 
-const SCOPES = [
+// Identity-only scopes — used for initial OAuth login.
+// These are the only scopes shown on the consent screen at sign-in.
+const AUTH_SCOPES = [
+    "openid",
+    "email",
+    "profile",
+];
+
+// Full Workspace scopes — requested only when user explicitly connects
+// their Google Workspace (Gmail, Drive, Calendar integration).
+export const WORKSPACE_SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
     "https://www.googleapis.com/auth/gmail.send",
     "https://www.googleapis.com/auth/gmail.compose",
@@ -9,10 +19,16 @@ const SCOPES = [
 ];
 
 export function getOAuth2Client() {
+    const baseUrl = process.env.NEXTAUTH_URL || process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL;
+    
+    if (!baseUrl && process.env.NODE_ENV === 'production') {
+        console.warn("Warning: No base URL (NEXTAUTH_URL) defined in production environment.");
+    }
+
     return new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
         process.env.GOOGLE_CLIENT_SECRET,
-        `${process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/auth/callback/google`
+        `${baseUrl || "http://localhost:3000"}/api/auth/callback/google`
     );
 }
 
@@ -20,7 +36,16 @@ export function getAuthUrl() {
     const client = getOAuth2Client();
     return client.generateAuthUrl({
         access_type: "offline",
-        scope: SCOPES,
+        scope: AUTH_SCOPES,
+        prompt: "consent",
+    });
+}
+
+export function getWorkspaceAuthUrl() {
+    const client = getOAuth2Client();
+    return client.generateAuthUrl({
+        access_type: "offline",
+        scope: WORKSPACE_SCOPES,
         prompt: "consent",
     });
 }

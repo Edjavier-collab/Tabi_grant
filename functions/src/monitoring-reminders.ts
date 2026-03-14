@@ -6,7 +6,7 @@ if (!admin.apps.length) {
 }
 const db = admin.firestore();
 
-export const checkMonitoringDeadlines = functions.pubsub
+export const checkMonitoringDeadlines = functions.runWith({ secrets: ['NEXTAUTH_URL'] }).pubsub
     .schedule('0 8 * * *') // Run daily at 8am
     .timeZone('America/Los_Angeles')
     .onRun(async (context) => {
