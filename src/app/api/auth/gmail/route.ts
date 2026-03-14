@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getWorkspaceAuthUrl } from "@/lib/google/gmail";
+import { getWorkspaceAuthUrl, getOriginFromHeaders } from "@/lib/google/gmail";
 
 export async function GET(req: NextRequest) {
-    const url = getWorkspaceAuthUrl(req.url);
+    const origin = getOriginFromHeaders(req.headers);
+    const url = getWorkspaceAuthUrl(origin);
     return NextResponse.redirect(url);
 }

@@ -10,16 +10,21 @@ export const WORKSPACE_SCOPES = [
     "https://www.googleapis.com/auth/calendar.events",
 ];
 
-export function getOAuth2Client(requestUrl?: string) {
-    let redirectUri: string;
-    if (requestUrl) {
-        const origin = new URL(requestUrl).origin;
-        redirectUri = `${origin}/api/auth/callback/google`;
-    } else if (process.env.APP_URL) {
-        redirectUri = `${process.env.APP_URL}/api/auth/callback/google`;
-    } else {
-        redirectUri = 'http://localhost:3000/api/auth/callback/google';
-    }
+/**
+ * Extracts the public-facing origin from request headers.
+ * On Cloud Run / Firebase App Hosting, req.url is an internal localhost URL,
+ * so we must use the forwarded headers set by the reverse proxy.
+ */
+export function getOriginFromHeaders(headers: Headers): string {
+    const forwardedHost = headers.get("x-forwarded-host");
+    const host = forwardedHost || headers.get("host") || "localhost:3000";
+    const proto = headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+    return `${proto}://${host}`;
+}
+
+export function getOAuth2Client(origin?: string) {
+    const base = origin || process.env.APP_URL || "http://localhost:3000";
+    const redirectUri = `${base}/api/auth/callback/google`;
 
     return new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
@@ -28,8 +33,8 @@ export function getOAuth2Client(requestUrl?: string) {
     );
 }
 
-export function getWorkspaceAuthUrl(requestUrl?: string) {
-    const client = getOAuth2Client(requestUrl);
+export function getWorkspaceAuthUrl(origin?: string) {
+    const client = getOAuth2Client(origin);
     return client.generateAuthUrl({
         access_type: "offline",
         scope: WORKSPACE_SCOPES,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getOAuth2Client } from "@/lib/google/gmail";
+import { getOAuth2Client, getOriginFromHeaders } from "@/lib/google/gmail";
 import { saveUserTokens } from "@/lib/firebase/db";
 import { cookies } from "next/headers";
 
@@ -11,8 +11,10 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "No authorization code provided" }, { status: 400 });
     }
 
+    const origin = getOriginFromHeaders(req.headers);
+
     try {
-        const client = getOAuth2Client(req.url);
+        const client = getOAuth2Client(origin);
         const { tokens } = await client.getToken(code);
 
         // Store tokens in HTTP-only cookies for session persistence
@@ -47,9 +49,9 @@ export async function GET(req: NextRequest) {
         }
 
         // Redirect to profile page with success
-        return NextResponse.redirect(new URL("/dashboard/profile?workspace=connected", req.url));
+        return NextResponse.redirect(new URL("/dashboard/profile?workspace=connected", origin));
     } catch (error) {
         console.error("OAuth callback error:", error);
-        return NextResponse.redirect(new URL("/dashboard/profile?workspace=error", req.url));
+        return NextResponse.redirect(new URL("/dashboard/profile?workspace=error", origin));
     }
 }
